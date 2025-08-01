@@ -60,8 +60,7 @@ public class AuthController {
     private Executor taskExecutor;
 
     @PostMapping(value = "/register", produces = "application/json", consumes = "application/json")
-    public Callable<ResponseEntity<AuthResponse>> registerHandler(@RequestBody Users user, HttpServletRequest request) {
-        return () -> {
+    public ResponseEntity<AuthResponse> registerHandler(@RequestBody Users user, HttpServletRequest request) {
             try {
                 String encodedPass = passwordEncoder.encode(user.getPassword());
                 user.setPassword(encodedPass);
@@ -85,12 +84,10 @@ public class AuthController {
                 e.printStackTrace();
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new AuthResponse());
             }
-        };
     }
 
     @PostMapping(value = "/seller-register")
-    public Callable<ResponseEntity<AuthResponse>> sellerRegisterHandler(@RequestBody Users user, HttpServletRequest request) {
-        return () -> {
+    public ResponseEntity<AuthResponse> sellerRegisterHandler(@RequestBody Users user, HttpServletRequest request) {
             try {
                 // Encrypt password
                 String encodedPass = passwordEncoder.encode(user.getPassword());
@@ -132,12 +129,10 @@ public class AuthController {
                 // Return error response with 500 status
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
             }
-        };
     }
 
     @PostMapping(value = "/login", produces = "application/json", consumes = "application/json")
-    public Callable<ResponseEntity<AuthResponse>> loginHandler(@RequestBody Users body) {
-        return () -> {
+    public ResponseEntity<AuthResponse> loginHandler(@RequestBody Users body) {
             try {
                 // Authenticate user credentials
                 Authentication authentication = authManager.authenticate(
@@ -167,7 +162,6 @@ public class AuthController {
                 e.printStackTrace();
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new AuthResponse(null, "Login Failed"));
             }
-        };
     }
     
     @PostMapping(value = "/employee/login", produces = "application/json", consumes = "application/json")
