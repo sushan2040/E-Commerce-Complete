@@ -1,0 +1,63 @@
+/* Styling the container */
+.tag-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    box-sizing: border-box;
+}
+
+/* Styling the individual tags */
+.react-tagsinput-tag {
+    background-color: #4caf50;
+    color: white;
+    padding: 8px 12px;
+    margin: 5px;
+    border-radius: 20px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Styling the remove button on each tag */
+.ReactTags__remove {
+    display: flex;
+    align-self: flex-end;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-weight: bold;
+    color: black;
+    border-radius: 50%;
+    width: 2rem;
+    height: 2rem;
+    text-align: center;
+    line-height: 16px;
+}
+
+.ReactTags__remove svg {
+    color: black;
+    fill: black;
+}
+
+/* Styling the input field */
+.react-tagsinput-input {
+    border: none;
+    outline: none;
+    padding: 8px;
+    font-size: 14px;
+    flex-grow: 1;
+    border-radius: 10px;
+    background-color: #fff;
+}
+
+/* Placeholder styling */
+.react-tagsinput-input::placeholder {
+    color: #aaa;
+}

@@ -1,0 +1,46 @@
+/* Overlay styles */
+.custom-overlay {
+    background-color: rgba(0, 0, 0, 0.75);
+    transition: opacity 300ms ease-in-out;
+    opacity: 0;
+}
+
+.custom-overlay.ReactModal__Overlay--after-open {
+    opacity: 1;
+}
+
+.custom-overlay.ReactModal__Overlay--before-close {
+    opacity: 0;
+}
+
+/* Modal styles */
+.custom-modal {
+    width: 50%;
+    margin: auto;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    position: relative;
+    animation: slideIn 300ms ease-in-out;
+}
+
+.custom-modal.ReactModal__Content--after-open {
+    opacity: 1;
+}
+
+.custom-modal.ReactModal__Content--before-close {
+    opacity: 0;
+}
+
+/* Slide-in animation */
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}

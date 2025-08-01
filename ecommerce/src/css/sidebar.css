@@ -1,0 +1,19 @@
+/* General layout */
+.layout {
+    display: flex;
+    height: calc(100vh - 56px); /* Full height minus navbar */
+  }
+  
+  /* Sidebar styling */
+  .pro-sidebar {
+    height: 100%;
+  }
+  
+  /* Main content area */
+  .content {
+    flex: 1;
+    padding: 20px;
+    background-color: #f8f9fa;
+    overflow-y: auto;
+  }
+  

@@ -1,0 +1,28 @@
+.breadcrumb-item {
+    display: inline-block;
+    padding: 0.4rem;
+    transform: skewX(-20deg);
+    cursor: pointer;
+    opacity: 0.8;
+    background-color: cornflowerblue;
+    color: white;
+}
+
+.breadcrumb-item a {
+    color: white;
+}
+
+.breadcrumb-item:hover {
+    color: rgb(250, 251, 252);
+    background-color: #0d6efd;
+}
+
+li .active {
+    color: white;
+    font-weight: 700;
+}
+
+.breadcrumb-item li:nth-last-child() a {
+    color: white;
+    font-weight: 600;
+}

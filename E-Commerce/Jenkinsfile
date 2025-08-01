@@ -1,0 +1,73 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_REGION = 'us-east-1'
+        ECR_REPO = '235494784067.dkr.ecr.eu-north-1.amazonaws.com/ecommerce'
+        ECS_CLUSTER = 'ECommerce-final'
+        ECS_SERVICE = 'your-ecs-service'
+        TASK_FAMILY = 'your-task-definition'
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/your-repo.git'
+            }
+        }
+
+        stage('Build JAR') {
+            steps {
+                sh './mvnw clean package'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh """
+                    docker build -t $ECR_REPO:latest .
+                    docker tag $ECR_REPO:latest $ECR_REPO:$(date +%s)
+                """
+            }
+        }
+
+        stage('Push Image to ECR') {
+            steps {
+                sh """
+                    aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO
+                    docker push $ECR_REPO:latest
+                """
+            }
+        }
+
+        stage('Update ECS Task Definition') {
+            steps {
+                sh """
+                    TASK_DEFINITION_JSON=$(aws ecs describe-task-definition --task-definition $TASK_FAMILY)
+                    NEW_REVISION=$(echo $TASK_DEFINITION_JSON | jq '.taskDefinition.revision + 1')
+
+                    CONTAINER_DEFINITIONS=$(echo $TASK_DEFINITION_JSON | jq '.taskDefinition.containerDefinitions')
+
+                    aws ecs register-task-definition --family $TASK_FAMILY --container-definitions "$CONTAINER_DEFINITIONS"
+                """
+            }
+        }
+
+        stage('Deploy to ECS') {
+            steps {
+                sh """
+                    aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --force-new-deployment --region $AWS_REGION
+                """
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Deployment successful!"
+        }
+        failure {
+            echo "Deployment failed!"
+        }
+    }
+}
