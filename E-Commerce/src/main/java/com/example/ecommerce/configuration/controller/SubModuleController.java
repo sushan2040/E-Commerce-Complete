@@ -3,7 +3,7 @@ package com.example.ecommerce.configuration.controller;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
+
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
@@ -61,27 +61,17 @@ public class SubModuleController {
 
     // Asynchronous Get Submodule List method
     @GetMapping(value = "/get-submodule-list")
-    public CompletableFuture<ResponseEntity<List<SubModuleMasterBean>>> getSubModuleList() {
-        return CompletableFuture.supplyAsync(() -> {
-        	if(redisTemplate.opsForValue().get(RedisKey.SUBMODULE_ALL.getKey())==null) {
+    public ResponseEntity<List<SubModuleMasterBean>> getSubModuleList() {
             List<SubModuleMasterBean> beanList = subModuleService.getSubModuleList();
-            redisTemplate.opsForValue().set(RedisKey.SUBMODULE_ALL.getKey(), beanList);
             return ResponseEntity.ok(beanList);
-        	}else {
-        		List<SubModuleMasterBean> beanList=(List<SubModuleMasterBean>)redisTemplate.opsForValue().get(RedisKey.SUBMODULE_ALL.getKey());
-        		return ResponseEntity.ok(beanList);
-        	}
-        },taskExecutor);
     }
 
     // Asynchronous Pagination method
     @PostMapping("/pagination")
-    public CompletableFuture<ResponseEntity<PaginationResponse<SubModuleMasterBean>>> getAllSubmodulesPagination(
+    public ResponseEntity<PaginationResponse<SubModuleMasterBean>> getAllSubmodulesPagination(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int per_page) {
 
-        return CompletableFuture.supplyAsync(() -> {
-        	if(redisTemplate.opsForValue().get(RedisKey.SUBMODULE_PAGINATION.getKey(page,per_page))==null) {
             List<SubModuleMasterBean> lookupDetailsFuture = subModuleService.getAllSubmodulesPagination(page, per_page);
 
             List<SubModuleMasterBean> lookupDetails = lookupDetailsFuture;  // Blocking until the result is available
@@ -93,34 +83,24 @@ public class SubModuleController {
 			response.setPage(page);
 			response.setTotalPages(totalRows); // Corrected totalPages calculation
 			response.setData(lookupDetails);
-			redisTemplate.opsForValue().set(RedisKey.SUBMODULE_PAGINATION.getKey(page,per_page), response);
 			return ResponseEntity.ok(response);
-        	}else {
-        		PaginationResponse<SubModuleMasterBean> response=(PaginationResponse<SubModuleMasterBean>)redisTemplate.opsForValue().get(RedisKey.SUBMODULE_PAGINATION.getKey(page,per_page));
-        		return ResponseEntity.ok(response);
-        	}
-        },taskExecutor);
     }
 
     // Asynchronous Delete method
     @DeleteMapping("/delete/{id}")
-    public Callable<ResponseEntity<Map<String, String>>> deleteSubModule(@PathVariable("id") Integer subModuleId) {
-        return () -> {
+    public ResponseEntity<Map<String, String>> deleteSubModule(@PathVariable("id") Integer subModuleId) {
             Long count = subModuleService.deleteSubModuleId(subModuleId);
 
             Map<String, String> response = new HashMap<>();
             response.put("message", count > 0 ? Constants.DELETE_SUCCESS_MESSAGE : Constants.DELETE_FAIL_MESSAGE);
 
             return ResponseEntity.ok(response);
-        };
     }
 
     // Asynchronous Get Submodule by ID method
     @GetMapping("/get-submodule-byid/{id}")
-    public Callable<ResponseEntity<SubModuleMasterBean>> getSubmoduleById(@PathVariable("id") Integer subModuleId) {
-        return () -> {
+    public ResponseEntity<SubModuleMasterBean> getSubmoduleById(@PathVariable("id") Integer subModuleId) {
             SubModuleMasterBean bean = subModuleService.getSubmoduleById(subModuleId);
             return ResponseEntity.ok(bean);
-        };
     }
 }

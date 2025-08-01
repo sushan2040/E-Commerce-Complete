@@ -58,23 +58,7 @@ public class LocationLevel2DaoImpl implements LocationLevel2Dao {
             session.merge(level2Master); // Save or update the entity
             transaction.commit(); // Commit the transaction
             
-            GlobalFunctionalInterface.allFunction(input->
-            GlobalFunctionalExecution.setRedisDataAll(input.getInput1(),input.getInput2(),input.getInput3(),input.getInput4()),
-            taskExecutor,redisTemplate,fetchAllLevel2s(),RedisKey.LOCATION_LEVEL2_ALL.getKey());
-            ThreadPoolTaskExecutor executor=(ThreadPoolTaskExecutor)taskExecutor;
             Integer totalCount=getTotalCountriesCount(0, 0);
-            Runnable firstPagination=()->{
-            	PaginationResponse response = new PaginationResponse<>();
-              response.setPage(0);
-              response.setTotalPages(totalCount);
-              response.setData(getAllLevel2sPagination(0, 0));
-            	RedisUtils.refreshRedisDataAll(RedisKey.LOCATION_LEVEL2_PAGINATION.getKey(1,10),response, redisTemplate);
-            };
-            executor.submit(firstPagination).get();
-            for(int i=2;i<(Math.ceil(totalCount.doubleValue()/10.0)+1);i++) {
-            	redisTemplate.delete(RedisKey.LOCATION_LEVEL2_PAGINATION.getKey(i,10));
-            }
-
             return 1L;
         } catch (Exception e) {
             if (transaction != null) {

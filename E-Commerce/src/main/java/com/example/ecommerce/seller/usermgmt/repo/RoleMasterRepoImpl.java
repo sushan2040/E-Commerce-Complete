@@ -65,6 +65,7 @@ public class RoleMasterRepoImpl implements RoleMasterRepo{
 		BeanUtils.copyProperties(bean, master);
 		master.setDeleted(Constants.NOT_DELETED);
 		master.setStatus(Constants.STATUS_ACTIVE);
+		master.setBusinessId(bean.getBusinessId());
 		Session session=sessionFactory.openSession();
 		session.beginTransaction();
 		master.setViewAccess(viewAccess);
@@ -73,28 +74,7 @@ public class RoleMasterRepoImpl implements RoleMasterRepo{
 		session.merge(master);
 		session.getTransaction().commit();
 		
-		GlobalFunctionalInterface.allFunction(input->
-        GlobalFunctionalExecution.setRedisDataAll(input.getInput1(),input.getInput2(),input.getInput3(),input.getInput4()),
-        taskExecutor,redisTemplate,getRoles(bean.getBusinessId()),RedisKey.ROLES_ALL.getKey());
-        ThreadPoolTaskExecutor executor=(ThreadPoolTaskExecutor)taskExecutor;
         Integer totalCount=getTotalRolesCount(0, 0,bean.getBusinessId());
-        Runnable firstPagination=()->{
-        	PaginationResponse response = new PaginationResponse<>();
-          response.setPage(0);
-          response.setTotalPages(totalCount);
-          response.setData(getAllRolesPagination(0, 10,bean.getBusinessId()));
-        	RedisUtils.refreshRedisDataAll(RedisKey.ROLES_PAGINATION.getKey(0,10,bean.getBusinessId()),response, redisTemplate);
-        };
-        try {
-			executor.submit(firstPagination).get();
-		} catch (InterruptedException | ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        for(int i=2;i<(Math.ceil(totalCount.doubleValue()/10.0)+1);i++) {
-        	redisTemplate.delete(RedisKey.ROLES_PAGINATION.getKey(i,10,bean.getBusinessId()));
-        }
-		
 		session.close();
 		return master.getRoleId();
 	}
@@ -164,28 +144,7 @@ public class RoleMasterRepoImpl implements RoleMasterRepo{
 		session.merge(master);
 		session.getTransaction().commit();
 		
-		GlobalFunctionalInterface.allFunction(input->
-        GlobalFunctionalExecution.setRedisDataAll(input.getInput1(),input.getInput2(),input.getInput3(),input.getInput4()),
-        taskExecutor,redisTemplate,getRoles(master.getBusinessId()),RedisKey.ROLES_ALL.getKey());
-        ThreadPoolTaskExecutor executor=(ThreadPoolTaskExecutor)taskExecutor;
         Integer totalCount=getTotalRolesCount(0, 0,master.getBusinessId());
-        Runnable firstPagination=()->{
-        	PaginationResponse response = new PaginationResponse<>();
-          response.setPage(0);
-          response.setTotalPages(totalCount);
-          response.setData(getAllRolesPagination(0, 10,master.getBusinessId()));
-        	RedisUtils.refreshRedisDataAll(RedisKey.ROLES_PAGINATION.getKey(0,10,master.getBusinessId()),response, redisTemplate);
-        };
-        try {
-			executor.submit(firstPagination).get();
-		} catch (InterruptedException | ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        for(int i=2;i<(Math.ceil(totalCount.doubleValue()/10.0)+1);i++) {
-        	redisTemplate.delete(RedisKey.ROLES_PAGINATION.getKey(i,10,master.getBusinessId()));
-        }
-		
 		session.close();
 		return 1L;
 	}

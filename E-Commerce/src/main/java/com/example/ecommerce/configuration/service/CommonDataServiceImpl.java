@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.ecommerce.configuration.beans.CommonDataBean;
 import com.example.ecommerce.configuration.masters.BridgeParameter;
+import com.example.ecommerce.seller.inventory.beans.ProductMasterBean;
 import com.example.ecommerce.usersrepo.CommonDataDao;
 
 import jakarta.transaction.Transactional;
@@ -52,6 +53,11 @@ public class CommonDataServiceImpl implements CommonDataService{
 	@Override
 	public List<CommonDataBean> fetchCommonDataSuggestions(String param,Integer businessId) {
 		return commonDataDao.fetchCommonDataSuggestions(param,businessId);
+	}
+
+	@Override
+	public List<CommonDataBean> fetchProductCategoryList() {
+		return commonDataDao.fetchProductCategoryList();
 	}
 
 }

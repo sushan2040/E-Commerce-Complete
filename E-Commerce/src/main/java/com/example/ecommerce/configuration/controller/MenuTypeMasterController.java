@@ -3,7 +3,7 @@ package com.example.ecommerce.configuration.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 
@@ -42,24 +42,16 @@ public class MenuTypeMasterController {
 
     // ✅ Fix: Wrap List in ResponseEntity for proper JSON formatting
     @GetMapping(value = "/get-menu-type-list")
-    public CompletableFuture<ResponseEntity<List<MenuTypeMasterBean>>> getMenuTypeMasterList() {
-    	return CompletableFuture.supplyAsync(()->{
-    		if(redisTemplate.opsForValue().get(RedisKey.MENU_TYPE_ALL.getKey())==null) {
+    public ResponseEntity<List<MenuTypeMasterBean>> getMenuTypeMasterList() {
     		 List<MenuTypeMasterBean> menuTypeList = menuTypeService.getMenuTypeMasterList();
-    		 redisTemplate.opsForValue().set(RedisKey.MENU_TYPE_ALL.getKey(), menuTypeList);
     	        return ResponseEntity.ok(menuTypeList);
-    		}else {
-    			List<MenuTypeMasterBean> menuTypeList=(List<MenuTypeMasterBean>)redisTemplate.opsForValue().get(RedisKey.MENU_TYPE_ALL.getKey());
-    			return ResponseEntity.ok(menuTypeList);
-    		}
-    	},taskExecutor);
     }
 
+    	        
     // ✅ Fix: Wrap plain String responses inside a JSON object
     @PostMapping(value = "/save", consumes = "application/json")
-    public CompletableFuture<ResponseEntity<Map<String, String>>> saveMenuType(
+    public ResponseEntity<Map<String, String>> saveMenuType(
             @RequestBody MenuTypeMasterBean bean, HttpServletRequest request) {
-       return CompletableFuture.supplyAsync(()->{ // Populate necessary fields before saving
         bean.setStatus(Constants.USER_STATUS_ACTIVE);
         bean.setDeleted(Constants.USER_NOT_DELETED);
         bean.setIpAddress(RequestUtils.getClientIpAddress(request));
@@ -73,16 +65,13 @@ public class MenuTypeMasterController {
         response.put("message", count > 0 ? Constants.SUCCESS_MESSAGE : Constants.FAIL_MESSAGE);
 
         return ResponseEntity.ok(response);
-       },taskExecutor);
     }
 
     // ✅ Fix: Pagination for Menu Types
     @PostMapping("/pagination")
-    public CompletableFuture<ResponseEntity<PaginationResponse<MenuTypeMasterBean>>> getAllMenuTypePagination(
+    public ResponseEntity<PaginationResponse<MenuTypeMasterBean>> getAllMenuTypePagination(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int per_page) {
-        return CompletableFuture.supplyAsync(()->{
-        	if(redisTemplate.opsForValue().get(RedisKey.MENU_TYPE_PAGINATION.getKey(page,per_page))==null) {
     	List<MenuTypeMasterBean> menuTypeList = menuTypeService.getAllMenusPagination(page, per_page);
         int totalRows = !menuTypeList.isEmpty() ? menuTypeList.get(0).getTotalRecords() : 0;
 
@@ -90,20 +79,12 @@ public class MenuTypeMasterController {
         response.setPage(page);
         response.setTotalPages(totalRows);
         response.setData(menuTypeList);
-        redisTemplate.opsForValue().set(RedisKey.MENU_TYPE_PAGINATION.getKey(page,per_page), response);
         return ResponseEntity.ok(response);
-        }else {
-        	PaginationResponse<MenuTypeMasterBean> response=
-        			(PaginationResponse<MenuTypeMasterBean>)redisTemplate.opsForValue().get(RedisKey.MENU_TYPE_PAGINATION.getKey(page,per_page));
-        	return ResponseEntity.ok(response);
-        }
-        },taskExecutor);
     }
 
     // ✅ Fix: Deleting Menu Type and wrapping response
     @DeleteMapping("/delete/{id}")
-    public CompletableFuture<ResponseEntity<Map<String, String>>> deleteMenuType(@PathVariable("id") Integer menuTypeId) {
-       return CompletableFuture.supplyAsync(()->{
+    public ResponseEntity<Map<String, String>> deleteMenuType(@PathVariable("id") Integer menuTypeId) {
     	Long count = menuTypeService.deleteMenuTypeId(menuTypeId);
 
         // Create response based on deletion result
@@ -111,15 +92,12 @@ public class MenuTypeMasterController {
         response.put("message", count > 0 ? Constants.DELETE_SUCCESS_MESSAGE : Constants.DELETE_FAIL_MESSAGE);
 
         return ResponseEntity.ok(response);
-       },taskExecutor);
     }
 
     // ✅ Fix: Returning a single MenuTypeMasterBean by ID
     @GetMapping("/get-menutype-byid/{id}")
-    public CompletableFuture<ResponseEntity<MenuTypeMasterBean>> getMenuTypeById(@PathVariable("id") Integer menuTypeId) {
-    	return CompletableFuture.supplyAsync(()->{
+    public ResponseEntity<MenuTypeMasterBean> getMenuTypeById(@PathVariable("id") Integer menuTypeId) {
         MenuTypeMasterBean bean = menuTypeService.getMenuTypeById(menuTypeId);
         return ResponseEntity.ok(bean);
-    	},taskExecutor);
     }
 }

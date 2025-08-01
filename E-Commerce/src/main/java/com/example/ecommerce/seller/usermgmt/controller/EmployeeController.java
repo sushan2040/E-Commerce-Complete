@@ -2,7 +2,7 @@ package com.example.ecommerce.seller.usermgmt.controller;
 
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
+
 import java.util.concurrent.Executor;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,12 +88,10 @@ public class EmployeeController {
 
     // Fetch Employees with Pagination (Asynchronous)
     @PostMapping("/pagination")
-    public CompletableFuture<ResponseEntity<PaginationResponse<EmployeeMasterBean>>> getAllEmployeesPagination(
+    public ResponseEntity<PaginationResponse<EmployeeMasterBean>> getAllEmployeesPagination(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int per_page,
             @RequestHeader HttpHeaders headers) {
-        return CompletableFuture.supplyAsync(() -> {
-        	if(redisTemplate.opsForValue().get(RedisKey.EMPLOYEE_PAGINATION.getKey(page,per_page))==null) {
             String authHeader = headers.getFirst(HttpHeaders.AUTHORIZATION);
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
@@ -114,12 +112,6 @@ public class EmployeeController {
             response.setPage(page);
             response.setTotalPages(totalRows);
             response.setData(employeeList);
-            redisTemplate.opsForValue().set(RedisKey.EMPLOYEE_PAGINATION.getKey(page,per_page),response);
             return ResponseEntity.ok(response);
-        	}else {
-        		PaginationResponse<EmployeeMasterBean> response=(PaginationResponse<EmployeeMasterBean>)redisTemplate.opsForValue().get(RedisKey.EMPLOYEE_PAGINATION.getKey(page,per_page));
-        		return ResponseEntity.ok(response);
-        	}
-        },taskExecutor);
     }
 }

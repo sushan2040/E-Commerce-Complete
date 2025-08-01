@@ -1,7 +1,7 @@
 package com.example.ecommerce.seller.usermgmt.repo;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 
@@ -140,23 +140,6 @@ public class EmployeeRepoImpl implements EmployeeRepo {
 		
 		ThreadPoolTaskExecutor executor=(ThreadPoolTaskExecutor)taskExecutor;
         Integer totalCount=getAllEmloyeeTotalCount(bean.getBusinessId());
-        Runnable firstPagination=()->{
-        	PaginationResponse response = new PaginationResponse<>();
-          response.setPage(0);
-          response.setTotalPages(totalCount);
-          response.setData(getAllEmployeesPagination(0, 10,bean.getBusinessId()));
-        	RedisUtils.refreshRedisDataAll(RedisKey.EMPLOYEE_PAGINATION.getKey(0,10),response, redisTemplate);
-        };
-        try {
-			executor.submit(firstPagination).get();
-		} catch (InterruptedException | ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        for(int i=2;i<(Math.ceil(totalCount.doubleValue()/10.0)+1);i++) {
-        	redisTemplate.delete(RedisKey.EMPLOYEE_PAGINATION.getKey(i,10));
-        }
-		
 		session.close();
 		return employeeMaster.getEmpId();
 	}

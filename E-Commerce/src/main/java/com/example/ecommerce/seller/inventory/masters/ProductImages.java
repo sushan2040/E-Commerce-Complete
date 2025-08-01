@@ -1,95 +1,96 @@
-package com.example.ecommerce.configuration.masters;
+package com.example.ecommerce.seller.inventory.masters;
 
 import java.util.Date;
 
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "country_master",schema = "ecommerce")
-@EntityListeners(AuditingEntityListener.class)
-public class CountryMaster {
-	
+@EntityListeners(value = AuditingEntityListener.class)
+@Table(name = "product_images",schema = "ecommerce")
+public class ProductImages {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "country_id")
-	private Integer countryId;
-	@Column(name = "country_name")
-	private String countryName;
-	@Column(name = "country_location_levels")
-	private Integer countryLocationLevels;
-	@Column(name = "status")
-	private String status;
+	@Column(name = "product_image_id")
+	private Integer productImagesId;
+	@Column(name = "product_image_path")
+	private String imagePath;
 	@Column(name = "deleted")
 	private String deleted;
-	@CreatedBy
+	@Column(name = "status")
+	private String status;
 	@Column(name = "created_by")
 	private Integer createdBy;
-	@CreatedDate
 	@Column(name = "created_date")
 	private Date createdDate;
-	@LastModifiedBy
 	@Column(name = "updated_by")
 	private Integer updatedBy;
-	@LastModifiedDate
 	@Column(name = "updated_date")
 	private Date updatedDate;
 	@Column(name = "mac_id")
 	private String macId;
 	@Column(name = "ip_address")
 	private String ipAddress;
-	@Column(name = "country_flag")
-	private String countryFlag;
+	@Column(name = "is_primary")
+	private String isPrimary;
 	
+	// Many-to-one mapping to ProductMaster
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
+    @JsonIgnore // Prevent circular reference by ignoring the back reference
+    private ProductMaster productMaster;
+    
+    
 	
-	public String getCountryFlag() {
-		return countryFlag;
+	public ProductMaster getProductMaster() {
+		return productMaster;
 	}
-	public void setCountryFlag(String countryFlag) {
-		this.countryFlag = countryFlag;
+	public void setProductMaster(ProductMaster productMaster) {
+		this.productMaster = productMaster;
 	}
-	public Integer getCountryId() {
-		return countryId;
+	public String getIsPrimary() {
+		return isPrimary;
 	}
-	public void setCountryId(Integer countryId) {
-		this.countryId = countryId;
+	public void setIsPrimary(String isPrimary) {
+		this.isPrimary = isPrimary;
 	}
-	public String getCountryName() {
-		return countryName;
+	public Integer getProductImagesId() {
+		return productImagesId;
 	}
-	public void setCountryName(String countryName) {
-		this.countryName = countryName;
+	public void setProductImagesId(Integer productImagesId) {
+		this.productImagesId = productImagesId;
 	}
-	public Integer getCountryLocationLevels() {
-		return countryLocationLevels;
+	
+	public String getImagePath() {
+		return imagePath;
 	}
-	public void setCountryLocationLevels(Integer countryLocationLevels) {
-		this.countryLocationLevels = countryLocationLevels;
-	}
-	public String getStatus() {
-		return status;
-	}
-	public void setStatus(String status) {
-		this.status = status;
+	public void setImagePath(String imagePath) {
+		this.imagePath = imagePath;
 	}
 	public String getDeleted() {
 		return deleted;
 	}
 	public void setDeleted(String deleted) {
 		this.deleted = deleted;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
 	}
 	public Integer getCreatedBy() {
 		return createdBy;
@@ -129,5 +130,4 @@ public class CountryMaster {
 	}
 	
 	
-
 }

@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
+
 import java.util.concurrent.Executor;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,11 +47,10 @@ public class LocationLevel4Controller {
 
     // Asynchronous Save Level 4 method
     @PostMapping("/save")
-    public CompletableFuture<ResponseEntity<Map<String, String>>> savelevel4(
+    public ResponseEntity<Map<String, String>> savelevel4(
             @RequestHeader HttpHeaders headers,
             @RequestBody Level4MasterBean bean,
             HttpServletRequest request) {
-        return CompletableFuture.supplyAsync(() -> {
             try {
                 bean.setStatus(Constants.USER_STATUS_ACTIVE);
                 bean.setDeleted(Constants.USER_NOT_DELETED);
@@ -69,73 +68,49 @@ public class LocationLevel4Controller {
                 response.put("message", "error");
                 return ResponseEntity.ok(response);
             }
-        },taskExecutor);
     }
 
     // Asynchronous Fetch All Level 4 List method
     @GetMapping("/fetch-all-level4s")
-    public CompletableFuture<ResponseEntity<List<Level4MasterBean>>> fetchAlllevel4s() {
-        return CompletableFuture.supplyAsync(() -> {
-        	if(redisTemplate.opsForValue().get(RedisKey.LOCATION_LEVEL4_ALL.getKey())==null) {
+    public ResponseEntity<List<Level4MasterBean>> fetchAlllevel4s() {
             List<Level4MasterBean> level4s = level4Service.fetchAlllevel4s();
-            redisTemplate.opsForValue().set(RedisKey.LOCATION_LEVEL4_ALL.getKey(), level4s);
             return ResponseEntity.ok(level4s);
-        	}else {
-        		List<Level4MasterBean> level4s=(List<Level4MasterBean>)redisTemplate.opsForValue().get(RedisKey.LOCATION_LEVEL4_ALL.getKey());
-        		return ResponseEntity.ok(level4s); 
-        	}
-        },taskExecutor);
     }
 
     // Asynchronous Pagination method for Level 4
     @PostMapping("/pagination")
-    public CompletableFuture<ResponseEntity<PaginationResponse<Level4MasterBean>>> getAlllevel4sPagination(
+    public ResponseEntity<PaginationResponse<Level4MasterBean>> getAlllevel4sPagination(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int per_page) {
-        return CompletableFuture.supplyAsync(() -> {
-        	if(redisTemplate.opsForValue().get(RedisKey.LOCATION_LEVEL4_PAGINATION.getKey(page,per_page))==null) {
             List<Level4MasterBean> level4List = level4Service.getAlllevel4sPagination(page, per_page);
             int totalRows = !level4List.isEmpty() ? level4List.get(0).getTotalRecords() : 0;
-
             PaginationResponse<Level4MasterBean> response = new PaginationResponse<>();
             response.setPage(page);
             response.setTotalPages(totalRows);
             response.setData(level4List);
-            redisTemplate.opsForValue().set(RedisKey.LOCATION_LEVEL4_PAGINATION.getKey(page,per_page), response);
             return ResponseEntity.ok(response);
-        	}else {
-        		PaginationResponse<Level4MasterBean> level4=(PaginationResponse<Level4MasterBean>)redisTemplate.opsForValue().get(RedisKey.LOCATION_LEVEL4_PAGINATION.getKey(page,per_page));
-        		return ResponseEntity.ok(level4);
-        	}
-        },taskExecutor);
     }
 
     // Asynchronous Delete Level 4 method
     @DeleteMapping("/delete/{id}")
-    public CompletableFuture<ResponseEntity<Map<String, String>>> deletelevel4(@PathVariable("id") Integer level4Id) {
-        return CompletableFuture.supplyAsync(() -> {
+    public ResponseEntity<Map<String, String>> deletelevel4(@PathVariable("id") Integer level4Id) {
             Long count = level4Service.deletelevel4Id(level4Id);
             Map<String, String> response = new HashMap<>();
             response.put("message", count > 0 ? Constants.DELETE_SUCCESS_MESSAGE : Constants.DELETE_FAIL_MESSAGE);
             return ResponseEntity.ok(response);
-        },taskExecutor);
     }
 
     // Asynchronous Get Level 4 by ID method
     @GetMapping("/get-level4-byid/{id}")
-    public CompletableFuture<ResponseEntity<Level4MasterBean>> getlevel4ById(@PathVariable("id") Integer level4Id) {
-        return CompletableFuture.supplyAsync(() -> {
+    public ResponseEntity<Level4MasterBean> getlevel4ById(@PathVariable("id") Integer level4Id) {
             Level4MasterBean bean = level4Service.getlevel4ById(level4Id);
             return ResponseEntity.ok(bean);
-        },taskExecutor);
     }
 
     // Asynchronous Get Location Level 4 Child by Parent ID
     @GetMapping(value = "/get-location-levelchild-bylevel-parentid/{id}")
-    public CompletableFuture<ResponseEntity<List<Level4MasterBean>>> getLocationLevel4ByLevel1(@PathVariable("id") Integer parentId) {
-        return CompletableFuture.supplyAsync(() -> {
+    public ResponseEntity<List<Level4MasterBean>> getLocationLevel4ByLevel1(@PathVariable("id") Integer parentId) {
             List<Level4MasterBean> list = level4Service.getLocationChildByParent(parentId);
             return ResponseEntity.ok(list);
-        },taskExecutor);
     }
 }

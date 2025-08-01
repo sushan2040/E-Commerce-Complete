@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
+
 import java.util.concurrent.Executor;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,25 +38,15 @@ public class DepartmentController {
     
     // Asynchronous Get Department Master List
     @GetMapping(value="/get-department-master-list")
-    public CompletableFuture<ResponseEntity<List<DepartmentBean>>> getDepartmentMasterList() {
-        return CompletableFuture.supplyAsync(() -> {
-        	if(redisTemplate.opsForValue().get(RedisKey.DEPARTMENT_ALL.getKey())==null) {
+    public ResponseEntity<List<DepartmentBean>> getDepartmentMasterList() {
             List<DepartmentBean> departmentMasterList = departmentService.getDepartmentMasterList();
-        	redisTemplate.opsForValue().set(RedisKey.DEPARTMENT_ALL.getKey(), departmentMasterList);
         	return ResponseEntity.ok(departmentMasterList);
-        	}else {
-        		List<DepartmentBean> departmentList=(List<DepartmentBean>)redisTemplate.opsForValue().get(RedisKey.DEPARTMENT_ALL.getKey());
-        		return ResponseEntity.ok(departmentList);
-        	}
-            
-        },taskExecutor);
     }
 
     // Asynchronous Save Department Master
     @PostMapping(value="/save", consumes = "application/json")
-    public CompletableFuture<ResponseEntity<Map<String, String>>> saveDepartmentMaster(
+    public ResponseEntity<Map<String, String>> saveDepartmentMaster(
             @RequestBody DepartmentBean bean, HttpServletRequest request) {
-        return CompletableFuture.supplyAsync(() ->{
             bean.setStatus(Constants.USER_STATUS_ACTIVE);
             bean.setDeleted(Constants.USER_NOT_DELETED);
             bean.setIpAddress(RequestUtils.getClientIpAddress(request));
@@ -65,48 +55,35 @@ public class DepartmentController {
             Map<String, String> response = new HashMap<>();
             response.put("message", count > 0 ? Constants.SUCCESS_MESSAGE : Constants.FAIL_MESSAGE);
             return ResponseEntity.ok(response);
-        },taskExecutor);
     }
 
     // Asynchronous Pagination method
     @PostMapping("/pagination")
-    public CompletableFuture<ResponseEntity<PaginationResponse<DepartmentBean>>> getAllDepartmentMasterPagination(
+    public ResponseEntity<PaginationResponse<DepartmentBean>> getAllDepartmentMasterPagination(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int per_page) {
-        return CompletableFuture.supplyAsync(() -> {
-        	if(redisTemplate.opsForValue().get(RedisKey.DEPARTMENT_PAGINATION.getKey(page,per_page))==null) {
             List<DepartmentBean> departmentList = departmentService.getAllDepartmentsPagination(page, per_page);
             int totalRows = !departmentList.isEmpty() ? departmentList.get(0).getTotalRecords() : 0;
             PaginationResponse<DepartmentBean> response = new PaginationResponse<>();
             response.setPage(page);
             response.setTotalPages(totalRows);
             response.setData(departmentList);
-            redisTemplate.opsForValue().set(RedisKey.DEPARTMENT_PAGINATION.getKey(page,per_page), response); 
             return ResponseEntity.ok(response);
-        	}else {
-        		PaginationResponse<DepartmentBean> response=(PaginationResponse<DepartmentBean>)redisTemplate.opsForValue().get(RedisKey.DEPARTMENT_PAGINATION.getKey(page,per_page));
-        		return ResponseEntity.ok(response);
-        	}
-        },taskExecutor);
     }
 
     // Asynchronous Delete Department
     @DeleteMapping("/delete/{id}")
-    public CompletableFuture<ResponseEntity<Map<String, String>>> deleteDepartmentMaster(@PathVariable("id") Integer departmentId) {
-        return CompletableFuture.supplyAsync(() -> {
+    public ResponseEntity<Map<String, String>> deleteDepartmentMaster(@PathVariable("id") Integer departmentId) {
             Long count = departmentService.deleteDepartmentMasterId(departmentId);
             Map<String, String> response = new HashMap<>();
             response.put("message", count > 0 ? Constants.DELETE_SUCCESS_MESSAGE : Constants.DELETE_FAIL_MESSAGE);
             return ResponseEntity.ok(response);
-        },taskExecutor);
     }
 
     // Asynchronous Get Department by ID
     @GetMapping("/get-department-byid/{id}")
-    public CompletableFuture<ResponseEntity<DepartmentBean>> getDepartmentMasterById(@PathVariable("id") Integer departmentId) {
-        return CompletableFuture.supplyAsync(() -> {
+    public ResponseEntity<DepartmentBean> getDepartmentMasterById(@PathVariable("id") Integer departmentId) {
             DepartmentBean bean = departmentService.getDepartmentMasterById(departmentId);
             return ResponseEntity.ok(bean);
-        },taskExecutor);
     }
 }

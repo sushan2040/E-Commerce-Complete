@@ -15,6 +15,8 @@ import com.example.ecommerce.configuration.masters.BridgeParameter;
 import com.example.ecommerce.configuration.masters.CommonBridgedData;
 import com.example.ecommerce.configuration.masters.CommonData;
 import com.example.ecommerce.constants.Constants;
+import com.example.ecommerce.seller.inventory.beans.ProductMasterBean;
+import com.example.ecommerce.seller.inventory.masters.ProductMaster;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -142,7 +144,7 @@ public class CommonDataDaoImpl implements CommonDataDao{
 		    // Select the relevant fields (including the parent name from the joined entity)
 		    commonDataQuery.select(builder.construct(
 		        CommonDataBean.class,
-		        rootBridged.get("commonBridgedDataId"),
+		        rootBridged.get("commonDataId"),
 		        root.get("commonDataName"),
 		        root.get("commonDataDesc"),
 		        parentJoin.get("commonDataName"), // Get the parent's name from the joined entity
@@ -166,15 +168,15 @@ public class CommonDataDaoImpl implements CommonDataDao{
 
 		    // Execute the query and get the result list
 		    List<CommonDataBean> commonDataList = countryquery.getResultList();
-
+		 // Commit the transaction
+		    transaction.commit();
 		    // If records found, set the total record count
 		    if (!commonDataList.isEmpty()) {
 		        int totalRecords = getTotalCommonDataCount(page, per_page);
 		        commonDataList.get(0).setTotalRecords(totalRecords);
 		    }
 
-		    // Commit the transaction
-		    transaction.commit();
+		    
 
 		    return commonDataList;
 		} catch (Exception e) {
@@ -210,13 +212,8 @@ public class CommonDataDaoImpl implements CommonDataDao{
             Query<Long> countryquery = session.createQuery(countryQuery);
             countryquery.setParameter("deleted", Constants.NOT_DELETED);
             countryquery.setParameter("status", Constants.STATUS_ACTIVE);
-            if ((page - 1) >= 0)
-                countryquery.setFirstResult((page - 1) * per_page); // Calculate the correct offset
-            else
-                countryquery.setFirstResult(0);
-            countryquery.setMaxResults(per_page);
             commonDataCount= countryquery.uniqueResult();
-            
+            session.getTransaction().commit();
         } catch (Exception e) {
             if (transaction != null) {
                 transaction.rollback(); // Rollback if error occurs
@@ -277,6 +274,35 @@ public class CommonDataDaoImpl implements CommonDataDao{
 		List<CommonDataBean> commonDataList=commonquery.getResultList();
 		session.getTransaction().commit();
 		return commonDataList;
+	}
+
+	@Override
+	public List<CommonDataBean> fetchProductCategoryList() {
+		Session session=sessionFactory.openSession();
+		session.beginTransaction();
+		CriteriaBuilder builder=session.getCriteriaBuilder();
+		CriteriaQuery<CommonDataBean> productQuery=builder.createQuery(CommonDataBean.class);
+		Root<CommonData> root=productQuery.from(CommonData.class);
+		Root<CommonData> rootCurrent=productQuery.from(CommonData.class);
+		Root<CommonBridgedData> rootBridged=productQuery.from(CommonBridgedData.class);
+		Predicate where=builder.equal(root.get("deleted"),builder.parameter(String.class,"deleted"));
+		where=builder.and(where,builder.equal(root.get("status"),builder.parameter(String.class,"status")));
+		where=builder.and(where,builder.equal(rootBridged.get("parentCommonDataId").get("commonDataId"),root.get("commonDataId")));
+		where=builder.and(where,builder.equal(rootBridged.get("commonDataId"),rootCurrent.get("commonDataId")));
+		where=builder.and(where,builder.equal(rootBridged.get("bridgeParameterId").get("bridgeParameterName"),builder.parameter(String.class,"bridgeParameterName")));
+		where=builder.and(where,builder.equal(root.get("commonDataName"),builder.parameter(String.class,"commonDataName")));
+		productQuery.where(where);
+		productQuery.select(builder.construct(CommonDataBean.class, 
+				rootCurrent.get("commonDataId"),
+				rootCurrent.get("commonDataName"),
+				rootCurrent.get("commonDataDesc")
+				));
+		Query<CommonDataBean> commonQuery=session.createQuery(productQuery);
+		commonQuery.setParameter("deleted",Constants.NOT_DELETED);
+		commonQuery.setParameter("status",Constants.STATUS_ACTIVE);
+		commonQuery.setParameter("bridgeParameterName",Constants.HAS_PARENT);
+		commonQuery.setParameter("commonDataName",Constants.PRODUCT_CATEGORY);
+		return commonQuery.getResultList();
 	}
 	
 	

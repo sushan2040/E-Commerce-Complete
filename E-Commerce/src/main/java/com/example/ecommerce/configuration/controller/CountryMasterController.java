@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
+
 import java.util.concurrent.Executor;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,11 +49,10 @@ public class CountryMasterController {
 
     // Asynchronous Save method
     @PostMapping("/save")
-    public CompletableFuture<ResponseEntity<Map<String, String>>> saveCountry(
+    public ResponseEntity<Map<String, String>> saveCountry(
             @RequestHeader HttpHeaders headers,
             @RequestBody CountryMasterBean bean,
             HttpServletRequest request) {
-        return CompletableFuture.supplyAsync(() -> {
             try {
                 bean.setStatus(Constants.USER_STATUS_ACTIVE);
                 bean.setDeleted(Constants.USER_NOT_DELETED);
@@ -71,35 +70,21 @@ public class CountryMasterController {
                 response.put("message", "error");
                 return ResponseEntity.ok(response);
             }
-        },taskExecutor);
     }
 
     @GetMapping("/fetch-all-countries")
-    public CompletableFuture<ResponseEntity<List<CountryMasterBean>>> fetchAllCountries() {
-        return CompletableFuture.supplyAsync(() -> {
+    public ResponseEntity<List<CountryMasterBean>> fetchAllCountries() {
             String cacheKey = "countries:all";  // Redis cache key for the list of countries
-            if(redisTemplate.opsForValue().get(RedisKey.COUNTRY_ALL.getKey())==null) {
             // If countries are not in cache, fetch them from the database
             List<CountryMasterBean> countries = countryService.fetchAllCountries();
-
-            // Cache the fetched data in Redis for future use
-            redisTemplate.opsForValue().set(RedisKey.COUNTRY_ALL.getKey(), countries);
-            // Return the countries as a response
             return ResponseEntity.ok(countries);
-            }else {
-            	List<CountryMasterBean> countries=(List<CountryMasterBean>)redisTemplate.opsForValue().get(RedisKey.COUNTRY_ALL.getKey());
-            	return ResponseEntity.ok(countries);
-            }
-        });
     }
 
     // Asynchronous Pagination method
     @PostMapping("/pagination")
-    public CompletableFuture<ResponseEntity<PaginationResponse<CountryMasterBean>>> getAllCountriesPagination(
+    public ResponseEntity<PaginationResponse<CountryMasterBean>> getAllCountriesPagination(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int per_page) {
-        return CompletableFuture.supplyAsync(() ->{
-        	if(redisTemplate.opsForValue().get(RedisKey.COUNTRY_PAGINATION.getKey(page,per_page))==null) {
             List<CountryMasterBean> countryList = countryService.getAllCountriesPagination(page, per_page);
             int totalRows = !countryList.isEmpty() ? countryList.get(0).getTotalRecords() : 0;
 
@@ -107,32 +92,22 @@ public class CountryMasterController {
             response.setPage(page);
             response.setTotalPages(totalRows);
             response.setData(countryList);
-            redisTemplate.opsForValue().set(RedisKey.COUNTRY_PAGINATION.getKey(page,per_page),response);
             return ResponseEntity.ok(response);
-        	}else {
-        		PaginationResponse<CountryMasterBean> paginationResponse=(PaginationResponse<CountryMasterBean>)redisTemplate.opsForValue().get(RedisKey.COUNTRY_PAGINATION.getKey(page,per_page));
-        		return ResponseEntity.ok(paginationResponse);
-        	}
-        },taskExecutor);
     }
 
     // Asynchronous Delete method
     @DeleteMapping("/delete/{id}")
-    public CompletableFuture<ResponseEntity<Map<String, String>>> deleteCountry(@PathVariable("id") Integer countryId) {
-        return CompletableFuture.supplyAsync(() ->{
+    public ResponseEntity<Map<String, String>> deleteCountry(@PathVariable("id") Integer countryId) {
             Long count = countryService.deleteCountryId(countryId);
             Map<String, String> response = new HashMap<>();
             response.put("message", count > 0 ? Constants.DELETE_SUCCESS_MESSAGE : Constants.DELETE_FAIL_MESSAGE);
             return ResponseEntity.ok(response);
-        },taskExecutor);
     }
 
     // Asynchronous Get Country by ID method
     @GetMapping("/get-country-byid/{id}")
-    public CompletableFuture<ResponseEntity<CountryMasterBean>> getCountryById(@PathVariable("id") Integer countryId) {
-        return CompletableFuture.supplyAsync(() -> {
+    public ResponseEntity<CountryMasterBean> getCountryById(@PathVariable("id") Integer countryId) {
             CountryMasterBean bean = countryService.getCountryById(countryId);
             return ResponseEntity.ok(bean);
-        },taskExecutor);
     }
 }

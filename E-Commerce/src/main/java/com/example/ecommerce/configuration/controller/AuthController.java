@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
+
 import java.util.concurrent.Executor;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,15 +39,13 @@ import com.example.ecommerce.constants.Constants;
 import com.example.ecommerce.seller.usermgmt.beans.EmployeeMasterBean;
 import com.example.ecommerce.seller.usermgmt.service.EmployeeService;
 import com.example.ecommerce.utils.RequestUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api-data/auth")
 public class AuthController {
 
     @Autowired private UsersService userRepo;
@@ -173,8 +171,7 @@ public class AuthController {
     }
     
     @PostMapping(value = "/employee/login", produces = "application/json", consumes = "application/json")
-    public Callable<ResponseEntity<AuthResponse>> employeeLoginHandler(@RequestBody Users body) {
-        return () -> {
+    public ResponseEntity<AuthResponse> employeeLoginHandler(@RequestBody Users body) {
             try {
             	// Authenticate user credentials
                 Authentication authentication = authManager.authenticate(
@@ -206,11 +203,10 @@ public class AuthController {
                 e.printStackTrace();
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new AuthResponse(null, "Login Failed"));
             }
-        };
     }
 
     @PostMapping(value = "/get-user-access")
-    public ResponseEntity<List<SubModuleMasterBean>> getUserAccess(@RequestHeader HttpHeaders headers) throws JsonMappingException, JsonProcessingException {
+    public ResponseEntity<List<SubModuleMasterBean>> getUserAccess(@RequestHeader HttpHeaders headers) {
         	Long startTime=System.currentTimeMillis();
             String authHeader = headers.getFirst(HttpHeaders.AUTHORIZATION);
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -219,11 +215,15 @@ public class AuthController {
             }
             String jwtToken = authHeader.substring(7); // Remove "Bearer " prefix
             List<SubModuleMasterBean> subModuleList = null;
+            try {
                 String user = jwtService.extractClaim(jwtToken, Claims::getSubject);
                 Users parsedUser = new ObjectMapper().readValue(user, Users.class);
-                if(redisTemplate.opsForValue().get(RedisKey.REDIS_USER_ACCESS_PREFIX.getKey(parsedUser.getUserId()))==null) {
                 	if(parsedUser.getIsAdmin()!=null && parsedUser.getIsAdmin().equals(Constants.IS_NOT_ADMIN) && parsedUser.getIsUserSeller()!=null && parsedUser.getIsUserSeller().equals(Constants.USER_NOT_SELLER)) {
+                		if(parsedUser.getBusinessId()==null) {
+                			subModuleList=userRepo.getUserAccess(parsedUser);
+                		}else {
                 		subModuleList=userRepo.getEmployeeAccess(parsedUser);
+                		}
                 	}else {
                 	subModuleList = userRepo.getUserAccess(parsedUser);
                 	}
@@ -244,20 +244,19 @@ public class AuthController {
                         if (!bean2.getSubModule().isEmpty()) {
                             mainList.add(bean2);
                         }
-                    }
                     Long endTime=System.currentTimeMillis();
-                    System.out.println("Time for execution:"+(endTime-startTime));
-                    if (!mainList.isEmpty()) {
-                    	redisTemplate.opsForValue().set(RedisKey.REDIS_USER_ACCESS_PREFIX.getKey(parsedUser.getUserId()),mainList);
-                        return ResponseEntity.ok(mainList);
-                    } else {
-                    	redisTemplate.opsForValue().set(RedisKey.REDIS_USER_ACCESS_PREFIX.getKey(parsedUser.getUserId()),subModuleList);
-                        return ResponseEntity.ok(subModuleList);
+                    
                     }
-                }else {
-                	List<SubModuleMasterBean> accessList=(List<SubModuleMasterBean>)redisTemplate.opsForValue().get(RedisKey.REDIS_USER_ACCESS_PREFIX.getKey(parsedUser.getUserId()));
-                	return ResponseEntity.ok(accessList);
-                }
+                    if(!mainList.isEmpty()) {
+                    	return ResponseEntity.ok(mainList);
+                    }else {
+                    	return ResponseEntity.ok(subModuleList);
+                    }
+            } catch (Exception e) {
+                e.printStackTrace();
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Collections.emptyList());
+            }
+        
     }
     
     @PostMapping(value = "/logout")
@@ -271,7 +270,6 @@ public class AuthController {
         try {
             String user = jwtService.extractClaim(jwtToken, Claims::getSubject);
             Users parsedUser = new ObjectMapper().readValue(user, Users.class);
-    	redisTemplate.delete(RedisKey.REDIS_USER_ACCESS_PREFIX.getKey(parsedUser.getUserId()));
         }catch(Exception e) {
         	e.printStackTrace();
         }

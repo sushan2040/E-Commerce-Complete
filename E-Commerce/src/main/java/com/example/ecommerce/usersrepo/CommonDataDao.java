@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.example.ecommerce.configuration.beans.CommonDataBean;
 import com.example.ecommerce.configuration.masters.BridgeParameter;
+import com.example.ecommerce.seller.inventory.beans.ProductMasterBean;
 
 public interface CommonDataDao {
 
@@ -20,5 +21,7 @@ public interface CommonDataDao {
 	CommonDataBean getCommonDataById(Integer id);
 
 	List<CommonDataBean> fetchCommonDataSuggestions(String param, Integer businessId);
+
+	List<CommonDataBean> fetchProductCategoryList();
 
 }

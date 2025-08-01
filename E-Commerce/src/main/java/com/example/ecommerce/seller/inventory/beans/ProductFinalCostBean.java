@@ -2,8 +2,11 @@ package com.example.ecommerce.seller.inventory.beans;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
-public class ProductFinalCostBean implements Serializable{
+import com.example.ecommerce.configuration.beans.PaginationCommonBean;
+
+public class ProductFinalCostBean extends PaginationCommonBean implements Serializable{
 
 	private static final long serialVersionUID = 2324124260445637718L;
 	private Integer productFinalCostMasterId;
@@ -19,6 +22,34 @@ public class ProductFinalCostBean implements Serializable{
 	private Date updatedDate;
 	private String macId;
 	private String ipAddress;
+	private String countryName;
+	
+	private List<String> productSpecList;
+	
+	
+	
+	public String getCountryName() {
+		return countryName;
+	}
+	public void setCountryName(String countryName) {
+		this.countryName = countryName;
+	}
+	public List<String> getProductSpecList() {
+		return productSpecList;
+	}
+	public void setProductSpecList(List<String> productSpecList) {
+		this.productSpecList = productSpecList;
+	}
+	private List<ProductFinalCostBean> data;
+	
+	
+	
+	public List<ProductFinalCostBean> getData() {
+		return data;
+	}
+	public void setData(List<ProductFinalCostBean> data) {
+		this.data = data;
+	}
 	public Integer getProductFinalCostMasterId() {
 		return productFinalCostMasterId;
 	}
@@ -99,6 +130,16 @@ public class ProductFinalCostBean implements Serializable{
 	}
 	public static long getSerialversionuid() {
 		return serialVersionUID;
+	}
+	public ProductFinalCostBean(Integer productFinalCostMasterId, Integer productId, String productSpecifications,
+			Integer countryId, Double cost,String countryName) {
+		super();
+		this.productFinalCostMasterId = productFinalCostMasterId;
+		this.productId = productId;
+		this.productSpecifications = productSpecifications;
+		this.countryId = countryId;
+		this.cost = cost;
+		this.countryName=countryName;
 	}
 	
 	

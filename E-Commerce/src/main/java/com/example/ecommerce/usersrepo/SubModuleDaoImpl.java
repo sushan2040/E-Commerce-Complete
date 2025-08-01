@@ -63,22 +63,7 @@ public class SubModuleDaoImpl implements SubModuleDao {
             session.merge(master);
             transaction.commit(); // Commit the transaction
             
-            GlobalFunctionalInterface.allFunction(input->
-            GlobalFunctionalExecution.setRedisDataAll(input.getInput1(),input.getInput2(),input.getInput3(),input.getInput4()),
-            taskExecutor,redisTemplate,getSubModuleList(),RedisKey.SUBMODULE_ALL.getKey());
-            ThreadPoolTaskExecutor executor=(ThreadPoolTaskExecutor)taskExecutor;
             Integer totalCount=getTotalSubmodulesCount(0, 0);
-            Runnable firstPagination=()->{
-            	PaginationResponse response = new PaginationResponse<>();
-              response.setPage(0);
-              response.setTotalPages(totalCount);
-              response.setData(getAllSubmodulesPagination(0, 10));
-            	RedisUtils.refreshRedisDataAll(RedisKey.SUBMODULE_PAGINATION.getKey(1,10),response, redisTemplate);
-            };
-            executor.submit(firstPagination).get();
-            for(int i=2;i<(Math.ceil(totalCount.doubleValue()/10.0)+1);i++) {
-            	redisTemplate.delete(RedisKey.SUBMODULE_PAGINATION.getKey(i,10));
-            }
             return 1;
         } catch (Exception e) {
             if (transaction != null) {
@@ -270,23 +255,7 @@ public class SubModuleDaoImpl implements SubModuleDao {
 
             transaction.commit(); // Commit the transaction
             
-            GlobalFunctionalInterface.allFunction(input->
-            GlobalFunctionalExecution.setRedisDataAll(input.getInput1(),input.getInput2(),input.getInput3(),input.getInput4()),
-            taskExecutor,redisTemplate,getSubModuleList(),RedisKey.SUBMODULE_ALL.getKey());
-            ThreadPoolTaskExecutor executor=(ThreadPoolTaskExecutor)taskExecutor;
             Integer totalCount=getTotalSubmodulesCount(0, 0);
-            Runnable firstPagination=()->{
-            	PaginationResponse response = new PaginationResponse<>();
-              response.setPage(0);
-              response.setTotalPages(totalCount);
-              response.setData(getAllSubmodulesPagination(0, 10));
-            	RedisUtils.refreshRedisDataAll(RedisKey.SUBMODULE_PAGINATION.getKey(1,10),response, redisTemplate);
-            };
-            executor.submit(firstPagination).get();
-            for(int i=2;i<(Math.ceil(totalCount.doubleValue()/10.0)+1);i++) {
-            	redisTemplate.delete(RedisKey.SUBMODULE_PAGINATION.getKey(i,10));
-            }
-            
             return 1L;
         } catch (Exception e) {
             if (transaction != null) {

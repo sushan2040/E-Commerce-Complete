@@ -59,23 +59,7 @@ public class LocationLevel5RepoImpl implements LocationLevel5Repo {
             session.merge(level5Master); // Save or update the entity
             transaction.commit(); // Commit the transaction
             
-            GlobalFunctionalInterface.allFunction(input->
-            GlobalFunctionalExecution.setRedisDataAll(input.getInput1(),input.getInput2(),input.getInput3(),input.getInput4()),
-            taskExecutor,redisTemplate,fetchAlllevel5s(),RedisKey.LOCATION_LEVELS_ALL.getKey());
-            ThreadPoolTaskExecutor executor=(ThreadPoolTaskExecutor)taskExecutor;
             Integer totalCount=getTotalCountriesCount(0, 0);
-            Runnable firstPagination=()->{
-            	PaginationResponse response = new PaginationResponse<>();
-              response.setPage(0);
-              response.setTotalPages(totalCount);
-              response.setData(getAlllevel5sPagination(0, 0));
-            	RedisUtils.refreshRedisDataAll(RedisKey.LOCATION_LEVEL5_PAGINATION.getKey(1,10),response, redisTemplate);
-            };
-            executor.submit(firstPagination).get();
-            for(int i=2;i<(Math.ceil(totalCount.doubleValue()/10.0)+1);i++) {
-            	redisTemplate.delete(RedisKey.LOCATION_LEVEL5_PAGINATION.getKey(i,10));
-            }
-
             return 1L;
         } catch (Exception e) {
             if (transaction != null) {

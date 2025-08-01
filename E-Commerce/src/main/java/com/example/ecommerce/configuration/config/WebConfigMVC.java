@@ -13,5 +13,9 @@ public class WebConfigMVC implements WebMvcConfigurer  {
 	    registry.addResourceHandler("/static/**")  // This maps the URL pattern to match static files
 	            .addResourceLocations("classpath:/static/static/")  // Points to /static folder in classpath
 	            .setCachePeriod(0);  // Optional: Disable caching for development (set to a higher value for production)
+	    
+	    registry.addResourceHandler("/product/images/**")
+	    .addResourceLocations("file:///home/sweet-kevin/IdeaProjects/E-Commerce/ecommerce/ecommerce/PRODUCT_IMAGES/")
+	    .setCachePeriod(0);
 	}
 }

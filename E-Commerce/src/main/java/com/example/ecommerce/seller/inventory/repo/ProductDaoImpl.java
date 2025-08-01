@@ -1,5 +1,6 @@
 package com.example.ecommerce.seller.inventory.repo;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -17,9 +18,13 @@ import org.springframework.stereotype.Repository;
 import com.example.ecommerce.configuration.beans.BrandBean;
 import com.example.ecommerce.configuration.beans.PaginationResponse;
 import com.example.ecommerce.configuration.config.RedisKey;
+import com.example.ecommerce.configuration.masters.CountryCurrencyMaster;
 import com.example.ecommerce.configuration.masters.CountryMaster;
 import com.example.ecommerce.constants.Constants;
+import com.example.ecommerce.seller.inventory.beans.ProductImagesBean;
 import com.example.ecommerce.seller.inventory.beans.ProductMasterBean;
+import com.example.ecommerce.seller.inventory.masters.ProductFinalCostMaster;
+import com.example.ecommerce.seller.inventory.masters.ProductImages;
 import com.example.ecommerce.seller.inventory.masters.ProductMaster;
 import com.example.ecommerce.utils.GlobalFunctionalExecution;
 import com.example.ecommerce.utils.GlobalFunctionalInterface;
@@ -27,6 +32,8 @@ import com.example.ecommerce.utils.RedisUtils;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
@@ -62,7 +69,6 @@ public class ProductDaoImpl implements ProductDao{
            response.setPage(0);
            response.setTotalPages(totalCount);
            response.setData(getAllProductsPagination(0, 10));
-         	RedisUtils.refreshRedisDataAll(RedisKey.PRODUCT_PAGINATION.getKey(1,10),response, redisTemplate);
          };
          try {
 			executor.submit(firstPagination).get();
@@ -70,9 +76,6 @@ public class ProductDaoImpl implements ProductDao{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-         for(int i=2;i<(Math.ceil(totalCount.doubleValue()/10.0)+1);i++) {
-         	redisTemplate.delete(RedisKey.PRODUCT_PAGINATION.getKey(i,10));
-         }
 		
 		session.close();
 		return master.getProductId().longValue();
@@ -154,7 +157,6 @@ public class ProductDaoImpl implements ProductDao{
           response.setPage(0);
           response.setTotalPages(totalCount);
           response.setData(getAllProductsPagination(0, 10));
-        	RedisUtils.refreshRedisDataAll(RedisKey.PRODUCT_PAGINATION.getKey(1,10),response, redisTemplate);
         };
         try {
 			executor.submit(firstPagination).get();
@@ -162,9 +164,7 @@ public class ProductDaoImpl implements ProductDao{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        for(int i=2;i<(Math.ceil(totalCount.doubleValue()/10.0)+1);i++) {
-        	redisTemplate.delete(RedisKey.PRODUCT_PAGINATION.getKey(i,10));
-        }
+       
 		
 		session.close();
 		return 1L;
@@ -172,13 +172,10 @@ public class ProductDaoImpl implements ProductDao{
 
 	@Override
 	public ProductMasterBean getProductById(Integer productId) {
-		Session session=sessionFactory.openSession();
-		session.beginTransaction();
+		Session session=sessionFactory.getCurrentSession();
 		ProductMaster master=session.get(ProductMaster.class, productId);
 		ProductMasterBean bean=new ProductMasterBean();
 		BeanUtils.copyProperties(master, bean);
-		session.getTransaction().commit();
-		session.close();
 		return bean;
 	}
 
@@ -203,12 +200,14 @@ public class ProductDaoImpl implements ProductDao{
 		productMasterQuery.setParameter("businessId",businessId);
 		List<ProductMasterBean> productList=productMasterQuery.getResultList();
 		session.getTransaction().commit();
+		session.close();
 		return productList;
 	}
 
 	@Override
 	public List<ProductMasterBean> fetchProductDataSuggestions(String param, Integer businessId) {
 		Session session=sessionFactory.openSession();
+		try {
 		CriteriaBuilder builder=session.getCriteriaBuilder();
 		CriteriaQuery<ProductMasterBean> productMasterQuery=builder.createQuery(ProductMasterBean.class);
 		Root<ProductMaster> root=productMasterQuery.from(ProductMaster.class);
@@ -227,7 +226,87 @@ public class ProductDaoImpl implements ProductDao{
 		prodQuery.setParameter("businessId",businessId);
 		prodQuery.setParameter("productName","%"+param.toLowerCase()+"%");
 		return prodQuery.getResultList();
+		}finally {
+			session.close();
+		}
 	}
+
+	@Override
+	public List<ProductMasterBean> fetchProductsByCateoryId(Integer productCategoryId,String currencyCode) {
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder builder = session.getCriteriaBuilder();
+		CriteriaQuery<ProductMasterBean> prodQuery = builder.createQuery(ProductMasterBean.class);
+		Root<ProductMaster> root = prodQuery.from(ProductMaster.class);
+		Root<ProductFinalCostMaster> rootFinalCost = prodQuery.from(ProductFinalCostMaster.class);
+		Root<CountryMaster> rootCountry = prodQuery.from(CountryMaster.class);
+		Root<CountryCurrencyMaster> rootCurrency = prodQuery.from(CountryCurrencyMaster.class);
+		Predicate where = builder.equal(root.get("deleted"), builder.parameter(String.class, "deleted"));
+		where = builder.and(where, builder.equal(root.get("status"), builder.parameter(String.class, "status")));
+		where = builder.and(where, builder.equal(root.get("productCategoryId"), builder.parameter(Integer.class, "productCategoryId")));
+		where = builder.and(where, builder.equal(rootFinalCost.get("productId"), root.get("productId")));
+		where = builder.and(where, builder.equal(rootFinalCost.get("countryId"), rootCurrency.get("countryId")));
+		where = builder.and(where, builder.equal(rootCountry.get("countryId"), rootFinalCost.get("countryId")));
+		where = builder.and(where, builder.equal(rootCurrency.get("currencyCode"), builder.parameter(String.class, "currencyCode")));
+
+		prodQuery.where(where);
+		prodQuery.orderBy(builder.asc(builder.function("RANDOM", Double.class)));
+		// Perform LEFT JOIN with productImages table
+		Join<ProductMaster, ProductImages> productImagesJoin = root.join("productImages", JoinType.LEFT);
+
+
+		// Selecting the desired fields and constructing the ProductMasterBean
+		prodQuery.select(builder.construct(ProductMasterBean.class,
+		        root.get("productId"),
+		        root.get("productName"),
+		        rootFinalCost.get("cost"),
+		        builder.construct(List.class,productImagesJoin),
+		        rootFinalCost.get("productFinalCostMasterId"))
+				);
+
+		// Execute the query
+		Query<ProductMasterBean> productQuery = session.createQuery(prodQuery);
+		productQuery.setParameter("deleted", Constants.NOT_DELETED);
+		productQuery.setParameter("status", Constants.STATUS_ACTIVE);
+		productQuery.setParameter("productCategoryId", productCategoryId);
+		productQuery.setParameter("currencyCode", currencyCode);
+		productQuery.setMaxResults(4);
+
+		// Fetch the result list
+		return productQuery.getResultList();
+
+	}
+
+	@Override
+	public void saveProductImage(ProductImages image) {
+		Session session=sessionFactory.getCurrentSession();
+		session.merge(image);
+	}
+
+	@Override
+	public List<ProductImagesBean> fetchProductImages(Integer productId) {
+		Session session=sessionFactory.getCurrentSession();
+		CriteriaBuilder builder=session.getCriteriaBuilder();
+		CriteriaQuery<ProductImagesBean> productQuery=builder.createQuery(ProductImagesBean.class);
+		Root<ProductImages> root=productQuery.from(ProductImages.class);
+		Predicate where=builder.equal(root.get("deleted"),builder.parameter(String.class,"deleted"));
+		where=builder.and(where,builder.equal(root.get("status"),builder.parameter(String.class,"status")));
+		where=builder.and(where,builder.equal(root.get("productMaster").get("productId"),builder.parameter(Integer.class,"productId")));
+		productQuery.where(where);
+		productQuery.select(builder.construct(ProductImagesBean.class, 
+				root.get("productImagesId"),
+				root.get("productMaster").get("productId"),
+				root.get("imagePath"),
+				root.get("isPrimary")
+				));
+		Query<ProductImagesBean> productquery=session.createQuery(productQuery);
+		productquery.setParameter("deleted",Constants.NOT_DELETED);
+		productquery.setParameter("status",Constants.STATUS_ACTIVE);
+		productquery.setParameter("productId",productId);
+		List<ProductImagesBean> list=productquery.getResultList();
+		return list;
+	}
+
+	
 	
 	
 }

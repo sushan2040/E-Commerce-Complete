@@ -2,8 +2,11 @@ package com.example.ecommerce.configuration.beans;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import jakarta.persistence.Column;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class CommonDataBean extends PaginationCommonBean{
 
 	private Integer commonDataId;

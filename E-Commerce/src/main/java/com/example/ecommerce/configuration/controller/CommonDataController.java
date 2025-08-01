@@ -3,7 +3,7 @@ package com.example.ecommerce.configuration.controller;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+
 import java.util.concurrent.Executor;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +33,7 @@ import com.example.ecommerce.configuration.masters.CommonData;
 import com.example.ecommerce.configuration.masters.Users;
 import com.example.ecommerce.configuration.service.CommonDataService;
 import com.example.ecommerce.constants.Constants;
+import com.example.ecommerce.seller.inventory.beans.ProductMasterBean;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.jsonwebtoken.Claims;
@@ -161,5 +162,10 @@ public class CommonDataController {
     	
     	CommonDataBean commonData=commonDataService.getCommonDataById(id);
     	return ResponseEntity.ok(commonData);
+    }
+    @GetMapping(value = "/fetch-product-categories")
+    public ResponseEntity<List<CommonDataBean>> fetchProductCategoryList(){
+    	List<CommonDataBean> productCategoryList=commonDataService.fetchProductCategoryList();
+    	return ResponseEntity.ok(productCategoryList);
     }
 }

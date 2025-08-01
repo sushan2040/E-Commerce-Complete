@@ -30,12 +30,7 @@ public class AuthConfig {
 	    UserDetailsService userDetailsService() {
 	        return username -> {
 	        		Users userBean = null;
-	        		if(redisTemplate.opsForValue().get(username)==null) {
 					userBean = (Users)usersService.findByEmail(username);
-					redisTemplate.opsForValue().set(username,userBean);
-	        		}else {
-	        			userBean=(Users)redisTemplate.opsForValue().get(username);
-	        		}
 	        		return userBean;
 	        };
 	    }

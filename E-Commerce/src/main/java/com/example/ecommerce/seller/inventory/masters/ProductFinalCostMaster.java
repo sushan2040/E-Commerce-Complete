@@ -2,6 +2,10 @@ package com.example.ecommerce.seller.inventory.masters;
 
 import java.util.Date;
 
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import jakarta.persistence.Column;
@@ -33,12 +37,16 @@ public class ProductFinalCostMaster {
 	private String deleted;
 	@Column(name = "status")
 	private String status;
+	@CreatedBy
 	@Column(name = "created_by")
 	private Integer createdBy;
+	@CreatedDate
 	@Column(name = "created_date")
 	private Date createdDate;
+	@LastModifiedBy
 	@Column(name = "updated_by")
 	private Integer updatedBy;
+	@LastModifiedDate
 	@Column(name = "updated_date")
 	private Date updatedDate;
 	@Column(name = "mac_id")

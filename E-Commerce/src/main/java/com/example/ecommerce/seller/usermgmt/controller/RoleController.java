@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
+
 import java.util.concurrent.Executor;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,13 +90,10 @@ public class RoleController {
 
     // Asynchronous Get All Roles method with Pagination
     @PostMapping("/pagination")
-    public CompletableFuture<ResponseEntity<PaginationResponse<RoleMasterBean>>> getAllRolesPagination(
+    public ResponseEntity<PaginationResponse<RoleMasterBean>> getAllRolesPagination(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int per_page,
             @RequestHeader HttpHeaders headers) {
-
-        return CompletableFuture.supplyAsync(() -> {
-        	
             String authHeader = headers.getFirst(HttpHeaders.AUTHORIZATION);
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
@@ -111,8 +108,6 @@ public class RoleController {
                 e.printStackTrace();
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
             }
-            	if(redisTemplate.opsForValue().get(RedisKey.ROLES_PAGINATION.getKey(page,per_page,parsedUser.getBusinessId()))==null) {
-            	
                 List<RoleMasterBean> roleList = roleMasterService.getAllRolesPagination(page, per_page, parsedUser.getBusinessId());
 
                 int totalRows = !roleList.isEmpty() ? roleList.get(0).getTotalRecords() : 0;
@@ -120,15 +115,7 @@ public class RoleController {
                 response.setPage(page);
                 response.setTotalPages(totalRows);
                 response.setData(roleList);
-                redisTemplate.opsForValue().set(RedisKey.ROLES_PAGINATION.getKey(page,per_page,parsedUser.getBusinessId()),response);
                 return ResponseEntity.ok(response);
-           
-        	}else {
-        		PaginationResponse<RoleMasterBean> roles=(PaginationResponse<RoleMasterBean>)redisTemplate.opsForValue()
-        				.get(RedisKey.ROLES_PAGINATION.getKey(page,per_page,parsedUser.getBusinessId()));
-        		return ResponseEntity.ok(roles);
-        	}
-        },taskExecutor);
     }
 
     // Asynchronous Delete Role method
@@ -142,17 +129,14 @@ public class RoleController {
 
     // Asynchronous Get Role by ID method
     @GetMapping("/get-role-master-byid/{id}")
-    public CompletableFuture<ResponseEntity<RoleMasterBean>> getRoleById(@PathVariable("id") Integer roleId) {
-        return CompletableFuture.supplyAsync(() -> {
+    public ResponseEntity<RoleMasterBean> getRoleById(@PathVariable("id") Integer roleId) {
             RoleMasterBean bean = roleMasterService.getRoleById(roleId);
             return ResponseEntity.ok(bean);
-        },taskExecutor);
     }
 
     // Asynchronous Get All Roles method (No pagination)
     @GetMapping("/get-roles")
-    public CompletableFuture<ResponseEntity<List<RoleMasterBean>>> getRoles(@RequestHeader HttpHeaders headers) {
-        return CompletableFuture.supplyAsync(() -> {
+    public ResponseEntity<List<RoleMasterBean>> getRoles(@RequestHeader HttpHeaders headers) {
             String authHeader = headers.getFirst(HttpHeaders.AUTHORIZATION);
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
@@ -164,20 +148,11 @@ public class RoleController {
 
             try {
                 Users parsedUser = new ObjectMapper().readValue(user, Users.class);
-                if(redisTemplate.opsForValue().get(RedisKey.ROLES_ALL.getKey())==null) {
                 	 List<RoleMasterBean> roleList = roleMasterService.getRoles(parsedUser.getBusinessId());
-                	redisTemplate.opsForValue().set(RedisKey.ROLES_ALL.getKey(), roleList);
-                	 return ResponseEntity.ok(roleList);
-                }else {
-                	List<RoleMasterBean> roleList=(List<RoleMasterBean>)redisTemplate.opsForValue().get(RedisKey.ROLES_ALL.getKey());
                 	return ResponseEntity.ok(roleList);
-                }
-               
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
             }
-        	
-        },taskExecutor);
     }
 }

@@ -2,12 +2,6 @@ package com.example.ecommerce.configuration.masters;
 
 import java.util.Date;
 
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import jakarta.persistence.Column;
@@ -19,47 +13,51 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "country_master",schema = "ecommerce")
-@EntityListeners(AuditingEntityListener.class)
-public class CountryMaster {
-	
+@Table(name = "country_currency_master",schema = "ecommerce")
+@EntityListeners(value = AuditingEntityListener.class)
+public class CountryCurrencyMaster {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "country_currency_master_id")
+	private Integer countryCurrencyMasterId;
 	@Column(name = "country_id")
 	private Integer countryId;
-	@Column(name = "country_name")
-	private String countryName;
-	@Column(name = "country_location_levels")
-	private Integer countryLocationLevels;
-	@Column(name = "status")
-	private String status;
+	@Column(name = "currency_name")
+	private String currencyName;
+	@Column(name = "currency_symbol")
+	private String currencySymbol;
 	@Column(name = "deleted")
 	private String deleted;
-	@CreatedBy
+	@Column(name = "status")
+	private String status;
 	@Column(name = "created_by")
 	private Integer createdBy;
-	@CreatedDate
 	@Column(name = "created_date")
 	private Date createdDate;
-	@LastModifiedBy
 	@Column(name = "updated_by")
 	private Integer updatedBy;
-	@LastModifiedDate
 	@Column(name = "updated_date")
 	private Date updatedDate;
 	@Column(name = "mac_id")
 	private String macId;
 	@Column(name = "ip_address")
 	private String ipAddress;
-	@Column(name = "country_flag")
-	private String countryFlag;
+	@Column(name = "currency_code")
+	private String currencyCode;
 	
 	
-	public String getCountryFlag() {
-		return countryFlag;
+	public String getCurrencyCode() {
+		return currencyCode;
 	}
-	public void setCountryFlag(String countryFlag) {
-		this.countryFlag = countryFlag;
+	public void setCurrencyCode(String currencyCode) {
+		this.currencyCode = currencyCode;
+	}
+	public Integer getCountryCurrencyMasterId() {
+		return countryCurrencyMasterId;
+	}
+	public void setCountryCurrencyMasterId(Integer countryCurrencyMasterId) {
+		this.countryCurrencyMasterId = countryCurrencyMasterId;
 	}
 	public Integer getCountryId() {
 		return countryId;
@@ -67,29 +65,30 @@ public class CountryMaster {
 	public void setCountryId(Integer countryId) {
 		this.countryId = countryId;
 	}
-	public String getCountryName() {
-		return countryName;
+	
+	public String getCurrencyName() {
+		return currencyName;
 	}
-	public void setCountryName(String countryName) {
-		this.countryName = countryName;
+	public void setCurrencyName(String currencyName) {
+		this.currencyName = currencyName;
 	}
-	public Integer getCountryLocationLevels() {
-		return countryLocationLevels;
+	public String getcurrencySymbol() {
+		return currencySymbol;
 	}
-	public void setCountryLocationLevels(Integer countryLocationLevels) {
-		this.countryLocationLevels = countryLocationLevels;
-	}
-	public String getStatus() {
-		return status;
-	}
-	public void setStatus(String status) {
-		this.status = status;
+	public void setcurrencySymbol(String currencySymbol) {
+		this.currencySymbol = currencySymbol;
 	}
 	public String getDeleted() {
 		return deleted;
 	}
 	public void setDeleted(String deleted) {
 		this.deleted = deleted;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
 	}
 	public Integer getCreatedBy() {
 		return createdBy;
@@ -129,5 +128,4 @@ public class CountryMaster {
 	}
 	
 	
-
 }

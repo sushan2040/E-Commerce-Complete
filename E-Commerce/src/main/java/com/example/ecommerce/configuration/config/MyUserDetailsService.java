@@ -28,12 +28,7 @@ public class MyUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Users userRes = null;
-        if(redisTemplate.opsForValue().get(email)==null) {
 		userRes = userRepo.findByEmail(email);
-		redisTemplate.opsForValue().set(email, userRes);
-        }else {
-        	userRes=(Users)redisTemplate.opsForValue().get(email);
-        }
         if(userRes==null)
             throw new UsernameNotFoundException("Could not findUser with email = " + email);
         return new org.springframework.security.core.userdetails.User(

@@ -3,30 +3,26 @@ package com.example.ecommerce.configuration.beans;
 import java.io.Serializable;
 import java.util.Date;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import jakarta.persistence.Column;
-
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CountryMasterBean extends PaginationCommonBean implements Serializable {
+public class CountryCurrencyBean extends PaginationCommonBean implements Serializable{
 
-	private static final long serialVersionUID = -6032733138959002484L;
+	private static final long serialVersionUID = 3334532047587532017L;
+	private Integer countryCurrencyMasterId;
 	private Integer countryId;
-	private String countryName;
-	private Integer countryLocationLevels;
-	private String status;
+	private String currencyName;
+	private String currencySymbol;
 	private String deleted;
+	private String status;
 	private Integer createdBy;
 	private Date createdDate;
 	private Integer updatedBy;
 	private Date updatedDate;
 	private String macId;
 	private String ipAddress;
-	private String countryFlag;
 	private String currencyCode;
-	
-	
+	private String countryName;
 	
 	
 	public String getCurrencyCode() {
@@ -35,26 +31,37 @@ public class CountryMasterBean extends PaginationCommonBean implements Serializa
 	public void setCurrencyCode(String currencyCode) {
 		this.currencyCode = currencyCode;
 	}
-	public static long getSerialversionuid() {
-		return serialVersionUID;
+	public Integer getCountryCurrencyMasterId() {
+		return countryCurrencyMasterId;
 	}
-	public String getCountryFlag() {
-		return countryFlag;
+	public void setCountryCurrencyMasterId(Integer countryCurrencyMasterId) {
+		this.countryCurrencyMasterId = countryCurrencyMasterId;
 	}
-	public void setCountryFlag(String countryFlag) {
-		this.countryFlag = countryFlag;
+	public Integer getCountryId() {
+		return countryId;
+	}
+	public void setCountryId(Integer countryId) {
+		this.countryId = countryId;
+	}
+	
+	public String getCurrencyName() {
+		return currencyName;
+	}
+	public void setCurrencyName(String currencyName) {
+		this.currencyName = currencyName;
+	}
+	
+	public String getDeleted() {
+		return deleted;
+	}
+	public void setDeleted(String deleted) {
+		this.deleted = deleted;
 	}
 	public String getStatus() {
 		return status;
 	}
 	public void setStatus(String status) {
 		this.status = status;
-	}
-	public String getDeleted() {
-		return deleted;
-	}
-	public void setDeleted(String deleted) {
-		this.deleted = deleted;
 	}
 	public Integer getCreatedBy() {
 		return createdBy;
@@ -92,39 +99,34 @@ public class CountryMasterBean extends PaginationCommonBean implements Serializa
 	public void setIpAddress(String ipAddress) {
 		this.ipAddress = ipAddress;
 	}
-	@JsonGetter("countryId")
-	public Integer getCountryId() {
-		return countryId;
+	
+	public String getCurrencySymbol() {
+		return currencySymbol;
 	}
-	public void setCountryId(Integer countryId) {
-		this.countryId = countryId;
+	public void setCurrencySymbol(String currencySymbol) {
+		this.currencySymbol = currencySymbol;
 	}
-	@JsonGetter("countryName")
 	public String getCountryName() {
 		return countryName;
 	}
 	public void setCountryName(String countryName) {
 		this.countryName = countryName;
 	}
-	@JsonGetter("countryLocationLevels")
-	public Integer getCountryLocationLevels() {
-		return countryLocationLevels;
-	}
-	public void setCountryLocationLevels(Integer countryLocationLevels) {
-		this.countryLocationLevels = countryLocationLevels;
-	}
-	public CountryMasterBean(Integer countryId, String countryName, String countryFlag, String currencyCode) {
+	public CountryCurrencyBean(Integer countryCurrencyMasterId, Integer countryId, String currencyName,
+			String currencySymbol,String countryName,String currencyCode, String status) {
 		super();
+		this.countryCurrencyMasterId = countryCurrencyMasterId;
 		this.countryId = countryId;
+		this.currencyName = currencyName;
+		this.currencySymbol = currencySymbol;
+		this.status = status;
+		this.currencyCode=currencyCode;
 		this.countryName = countryName;
-		this.countryFlag = countryFlag;
-		this.currencyCode = currencyCode;
 	}
-	public CountryMasterBean() {
+	public CountryCurrencyBean() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	
 	
 	
 }

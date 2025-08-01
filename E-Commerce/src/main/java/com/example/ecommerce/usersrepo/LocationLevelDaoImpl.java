@@ -59,23 +59,7 @@ public class LocationLevelDaoImpl implements LocationLevelDao {
             session.merge(locationLevelMaster);
             transaction.commit(); // Commit the transaction
             
-            GlobalFunctionalInterface.allFunction(input->
-            GlobalFunctionalExecution.setRedisDataAll(input.getInput1(),input.getInput2(),input.getInput3(),input.getInput4()),
-            taskExecutor,redisTemplate,fetchAllLocationLevels(),RedisKey.LOCATION_LEVELS_ALL.getKey());
-            ThreadPoolTaskExecutor executor=(ThreadPoolTaskExecutor)taskExecutor;
             Integer totalCount=getTotalLocationLevelsCount(0, 0);
-            Runnable firstPagination=()->{
-            	PaginationResponse response = new PaginationResponse<>();
-              response.setPage(0);
-              response.setTotalPages(totalCount);
-              response.setData(getAllLocationLevelsPagination(0, 10));
-            	RedisUtils.refreshRedisDataAll(RedisKey.LOCATION_LEVELS_PAGINATION.getKey(1,10),response, redisTemplate);
-            };
-            executor.submit(firstPagination).get();
-            for(int i=2;i<(Math.ceil(totalCount.doubleValue()/10.0)+1);i++) {
-            	redisTemplate.delete(RedisKey.LOCATION_LEVELS_PAGINATION.getKey(i,10));
-            }
-
             return 1L;
         } catch (Exception e) {
             if (transaction != null) {
@@ -270,22 +254,7 @@ public class LocationLevelDaoImpl implements LocationLevelDao {
             session.persist(locationLevelMaster);
 
             transaction.commit(); // Commit the transaction
-            GlobalFunctionalInterface.allFunction(input->
-            GlobalFunctionalExecution.setRedisDataAll(input.getInput1(),input.getInput2(),input.getInput3(),input.getInput4()),
-            taskExecutor,redisTemplate,fetchAllLocationLevels(),RedisKey.LOCATION_LEVELS_ALL.getKey());
-            ThreadPoolTaskExecutor executor=(ThreadPoolTaskExecutor)taskExecutor;
             Integer totalCount=getTotalLocationLevelsCount(0, 0);
-            Runnable firstPagination=()->{
-            	PaginationResponse response = new PaginationResponse<>();
-              response.setPage(0);
-              response.setTotalPages(totalCount);
-              response.setData(getAllLocationLevelsPagination(0, 10));
-            	RedisUtils.refreshRedisDataAll(RedisKey.LOCATION_LEVELS_PAGINATION.getKey(1,10),response, redisTemplate);
-            };
-            executor.submit(firstPagination).get();
-            for(int i=2;i<(Math.ceil(totalCount.doubleValue()/10.0)+1);i++) {
-            	redisTemplate.delete(RedisKey.LOCATION_LEVELS_PAGINATION.getKey(i,10));
-            }
             return 1L;
         } catch (Exception e) {
             if (transaction != null) {

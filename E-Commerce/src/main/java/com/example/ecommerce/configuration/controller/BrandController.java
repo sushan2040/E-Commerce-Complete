@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
+
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 
@@ -71,27 +71,17 @@ public class BrandController {
 
     // ✅ Asynchronous Get All Brands method
     @GetMapping("/fetch-all-Brands")
-    public CompletableFuture<ResponseEntity<List<BrandBean>>> fetchAllBrands() {
-        return CompletableFuture.supplyAsync(() ->{
-        	if(redisTemplate.opsForValue().get(RedisKey.BRANDS_ALL.getKey())==null) {
+    public ResponseEntity<List<BrandBean>> fetchAllBrands() {
             List<BrandBean> Brands = null;
             Brands = brandService.fetchAllBrands();
-            redisTemplate.opsForValue().set(RedisKey.BRANDS_ALL.getKey(), Brands);
             return ResponseEntity.ok(Brands);
-        	}else {
-        		List<BrandBean> brands=(List<BrandBean>)redisTemplate.opsForValue().get(RedisKey.BRANDS_ALL.getKey());
-        		return ResponseEntity.ok(brands);
-        	}
-        },taskExecutor);
     }
 
     // ✅ Asynchronous Pagination method
     @PostMapping("/pagination")
-    public CompletableFuture<ResponseEntity<PaginationResponse<BrandBean>>> getAllBrandsPagination(
+    public ResponseEntity<PaginationResponse<BrandBean>> getAllBrandsPagination(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int per_page) {
-        return CompletableFuture.supplyAsync(() ->{
-        	if(redisTemplate.opsForValue().get(RedisKey.BRANDS_PAGINATION.getKey(page,per_page))==null) {
             List<BrandBean> BrandList = null;
             BrandList = brandService.getAllBrandsPagination(page, per_page);
             int totalRows = !BrandList.isEmpty() ? BrandList.get(0).getTotalRecords() : 0;
@@ -100,34 +90,24 @@ public class BrandController {
             response.setPage(page);
             response.setTotalPages(totalRows);
             response.setData(BrandList);
-            redisTemplate.opsForValue().set(RedisKey.BRANDS_PAGINATION.getKey(page,per_page),response);
             return ResponseEntity.ok(response);
-        	}else {
-        		PaginationResponse<BrandBean> response=(PaginationResponse<BrandBean>)redisTemplate.opsForValue().get(RedisKey.BRANDS_PAGINATION.getKey(page,per_page));
-        		return ResponseEntity.ok(response);
-        	}
-        },taskExecutor);
     }
 
     // ✅ Asynchronous Delete method
     @DeleteMapping("/delete/{id}")
-    public CompletableFuture<ResponseEntity<Map<String, String>>> deleteBrand(@PathVariable("id") Integer brandId) {
-        return CompletableFuture.supplyAsync(() ->{
+    public ResponseEntity<Map<String, String>> deleteBrand(@PathVariable("id") Integer brandId) {
             Long count = 0L;
             count = brandService.deletebrandId(brandId);
             Map<String, String> response = new HashMap<>();
             response.put("message", count > 0 ? Constants.DELETE_SUCCESS_MESSAGE : Constants.DELETE_FAIL_MESSAGE);
             return ResponseEntity.ok(response);
-        },taskExecutor);
     }
 
     // ✅ Asynchronous Get Brand by ID method
     @GetMapping("/get-Brand-byid/{id}")
-    public CompletableFuture<ResponseEntity<BrandBean>> getBrandById(@PathVariable("id") Integer brandId) {
-        return CompletableFuture.supplyAsync(() ->{
+    public ResponseEntity<BrandBean> getBrandById(@PathVariable("id") Integer brandId) {
             BrandBean bean = null;
             bean = brandService.getBrandById(brandId);
             return ResponseEntity.ok(bean);
-        },taskExecutor);
     }
 }

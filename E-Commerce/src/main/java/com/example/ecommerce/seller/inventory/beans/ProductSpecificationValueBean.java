@@ -147,6 +147,13 @@ public class ProductSpecificationValueBean extends PaginationCommonBean{
 		super();
 		// TODO Auto-generated constructor stub
 	}
+	public ProductSpecificationValueBean(Integer productSpecificationValueMasterId,
+			String specificationName, String value) {
+		super();
+		this.productSpecificationValueMasterId = productSpecificationValueMasterId;
+		this.value = value;
+		this.specificationName = specificationName;
+	}
 	
 	
 }

@@ -19,6 +19,7 @@ import com.example.ecommerce.configuration.beans.BrandBean;
 import com.example.ecommerce.configuration.beans.CountryMasterBean;
 import com.example.ecommerce.configuration.beans.PaginationResponse;
 import com.example.ecommerce.configuration.config.RedisKey;
+import com.example.ecommerce.configuration.masters.CountryCurrencyMaster;
 import com.example.ecommerce.configuration.masters.CountryMaster;
 import com.example.ecommerce.constants.Constants;
 import com.example.ecommerce.utils.GlobalFunctionalExecution;
@@ -58,23 +59,7 @@ public class CountryDaoImpl implements CountryDao {
             session.merge(countryMaster); // Save or update the entity
             transaction.commit(); // Commit the transaction
             
-            GlobalFunctionalInterface.allFunction(input->
-            GlobalFunctionalExecution.setRedisDataAll(input.getInput1(),input.getInput2(),input.getInput3(),input.getInput4()),
-            taskExecutor,redisTemplate,fetchAllCountries(),RedisKey.COUNTRY_ALL.getKey());
-            ThreadPoolTaskExecutor executor=(ThreadPoolTaskExecutor)taskExecutor;
             Integer totalCount=getTotalCountriesCount(0, 0);
-            Runnable firstPagination=()->{
-            	PaginationResponse response = new PaginationResponse<>();
-              response.setPage(0);
-              response.setTotalPages(totalCount);
-              response.setData(getAllCountriesPagination(0, 10));
-            	RedisUtils.refreshRedisDataAll(RedisKey.COUNTRY_PAGINATION.getKey(1,10),response, redisTemplate);
-            };
-            executor.submit(firstPagination).get();
-            for(int i=2;i<(Math.ceil(totalCount.doubleValue()/10.0)+1);i++) {
-            	redisTemplate.delete(RedisKey.COUNTRY_PAGINATION.getKey(i,10));
-            }
-
             return 1L;
         } catch (Exception e) {
             if (transaction != null) {
@@ -99,27 +84,29 @@ public class CountryDaoImpl implements CountryDao {
             transaction = session.beginTransaction();
 
             CriteriaBuilder builder = session.getCriteriaBuilder();
-            CriteriaQuery<CountryMaster> countryQuery = builder.createQuery(CountryMaster.class);
+            CriteriaQuery<CountryMasterBean> countryQuery = builder.createQuery(CountryMasterBean.class);
             Root<CountryMaster> root = countryQuery.from(CountryMaster.class);
-
+            Root<CountryCurrencyMaster> currencyMaster=countryQuery.from(CountryCurrencyMaster.class);
             Predicate where = builder.equal(root.get("status"), builder.parameter(String.class, "status"));
             where = builder.and(where, builder.equal(root.get("deleted"), builder.parameter(String.class, "deleted")));
+            where=builder.and(where,builder.equal(root.get("countryId"), currencyMaster.get("countryId")));
             countryQuery.where(where);
-
-            Query<CountryMaster> countryquery = session.createQuery(countryQuery);
+            countryQuery.select(builder.construct(CountryMasterBean.class, 
+            		root.get("countryId"),
+            		root.get("countryName"),
+            		root.get("countryFlag"),
+            		currencyMaster.get("currencyCode")
+            		));
+            Query<CountryMasterBean> countryquery = session.createQuery(countryQuery);
             countryquery.setParameter("status", Constants.STATUS_ACTIVE);
             countryquery.setParameter("deleted", Constants.NOT_DELETED);
             countryquery.setCacheable(true);
             countryquery.setCacheRegion("countryMasterCache");
-            List<CountryMaster> countryList = countryquery.getResultList();
-            List<CountryMasterBean> countryMapList = countryList.stream().map(obj -> {
-                CountryMasterBean bean = new CountryMasterBean();
-                BeanUtils.copyProperties(obj, bean);
-                return bean;
-            }).collect(Collectors.toList());
+            List<CountryMasterBean> countryList = countryquery.getResultList();
+           
 
             transaction.commit(); // Commit the transaction
-            return countryMapList;
+            return countryList;
         } catch (Exception e) {
             if (transaction != null) {
                 transaction.rollback(); // Rollback if error occurs
@@ -269,23 +256,7 @@ public class CountryDaoImpl implements CountryDao {
 
             transaction.commit(); // Commit the transaction
             
-            GlobalFunctionalInterface.allFunction(input->
-            GlobalFunctionalExecution.setRedisDataAll(input.getInput1(),input.getInput2(),input.getInput3(),input.getInput4()),taskExecutor,
-            redisTemplate,fetchAllCountries(),RedisKey.COUNTRY_ALL.getKey());
-            ThreadPoolTaskExecutor executor=(ThreadPoolTaskExecutor)taskExecutor;
             Integer totalCount=getTotalCountriesCount(0, 0);
-            Runnable firstPagination=()->{
-            	PaginationResponse response = new PaginationResponse<>();
-              response.setPage(0);
-              response.setTotalPages(totalCount);
-              response.setData(getAllCountriesPagination(0, 10));
-            	RedisUtils.refreshRedisDataAll(RedisKey.COUNTRY_PAGINATION.getKey(1,10),response, redisTemplate);
-            };
-            executor.submit(firstPagination).get();
-            for(int i=2;i<(Math.ceil(totalCount.doubleValue()/10.0)+1);i++) {
-            	redisTemplate.delete(RedisKey.COUNTRY_PAGINATION.getKey(i,10));
-            }
-            
             return 1L;
         } catch (Exception e) {
             if (transaction != null) {

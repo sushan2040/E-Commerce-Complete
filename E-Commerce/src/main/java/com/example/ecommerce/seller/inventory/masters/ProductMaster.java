@@ -1,22 +1,27 @@
 package com.example.ecommerce.seller.inventory.masters;
 
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.springframework.cache.annotation.Cacheable;
+import java.util.List;
+
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.example.ecommerce.utils.CommonEntity;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Table(name = "product_master",schema = "ecommerce")
 @Entity
 @EntityListeners(value = AuditingEntityListener.class)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProductMaster extends CommonEntity {
 
 	@Id
@@ -25,6 +30,8 @@ public class ProductMaster extends CommonEntity {
 	private Integer productId;
 	@Column(name = "product_name")
 	private String productName;
+	@Column(name = "product_category_id")
+	private Integer productCategoryId;
 	@Column(name = "product_desc")
 	private String productDesc;
 	@Column(name = "cost")
@@ -53,6 +60,19 @@ public class ProductMaster extends CommonEntity {
 	private Integer businessId;
 	@Column(name = "brand_id")
 	private Integer brandId;
+	
+	// One-to-many mapping with ProductImages
+    @OneToMany(mappedBy = "productMaster", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ProductImages> productImages;
+    
+    
+	
+	public List<ProductImages> getProductImages() {
+		return productImages;
+	}
+	public void setProductImages(List<ProductImages> productImages) {
+		this.productImages = productImages;
+	}
 	public Integer getProductId() {
 		return productId;
 	}
@@ -149,6 +169,13 @@ public class ProductMaster extends CommonEntity {
 	public void setBrandId(Integer brandId) {
 		this.brandId = brandId;
 	}
+	public Integer getProductCategoryId() {
+		return productCategoryId;
+	}
+	public void setProductCategoryId(Integer productCategoryId) {
+		this.productCategoryId = productCategoryId;
+	}
+	
 	
 	
 }

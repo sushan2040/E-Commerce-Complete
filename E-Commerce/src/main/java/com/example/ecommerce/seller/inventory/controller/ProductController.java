@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
+
 import java.util.concurrent.Executor;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,15 +28,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.ecommerce.configuration.beans.CommonDataBean;
 import com.example.ecommerce.configuration.beans.PaginationResponse;
 import com.example.ecommerce.configuration.beans.SubModuleMasterBean;
 import com.example.ecommerce.configuration.config.JwtService;
-import com.example.ecommerce.configuration.config.RedisKey;
 import com.example.ecommerce.configuration.config.WebPCompressor;
 import com.example.ecommerce.configuration.masters.Users;
 import com.example.ecommerce.constants.Constants;
+import com.example.ecommerce.seller.inventory.beans.ProductImagesBean;
 import com.example.ecommerce.seller.inventory.beans.ProductMasterBean;
+import com.example.ecommerce.seller.inventory.masters.ProductImages;
+import com.example.ecommerce.seller.inventory.masters.ProductMaster;
 import com.example.ecommerce.seller.inventory.service.ProductService;
 import com.example.ecommerce.utils.RequestUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -68,8 +69,8 @@ public class ProductController {
     @PostMapping(value = "/save")
     public ResponseEntity<Map<String, String>> saveProductMaster(HttpServletRequest request,
             @RequestPart("productMasterBean") String productMasterBean,
-            @RequestPart("files") List<MultipartFile> files,
-            @RequestPart("primary") MultipartFile primaryImage,
+            @RequestPart(value="files",required = false) List<MultipartFile> files,
+            @RequestPart(value="primary",required = false) MultipartFile primaryImage,
             @RequestHeader HttpHeaders headers) {
         	String authHeader = headers.getFirst(HttpHeaders.AUTHORIZATION);
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -94,6 +95,7 @@ public class ProductController {
                 Long productId = productService.saveProductMaster(bean);
                 //code to save uploaded product images
                 int i = 0;
+                if(files!=null) {
                 for (MultipartFile file : files) {
                 	
                 	if (file != null) {
@@ -105,7 +107,7 @@ public class ProductController {
         				String basePath = environment.getProperty("product.images.path");
         				String randomPath = WebPCompressor.generateFixedRandomString(productId.toString(),
         						Integer.parseInt("7"));
-        				String photoUploadPath = Paths.get(basePath, randomPath).toString();
+        			 	String photoUploadPath = Paths.get(basePath,randomPath).toString();
         				// Create directories if they don't exist
         				File photoDir = new File(photoUploadPath);
         				if (!photoDir.exists()) {
@@ -116,23 +118,65 @@ public class ProductController {
         				try {
         					file.transferTo(photoFile);
         					System.out.println("File uploaded successfully: " + photoFile.getAbsolutePath());
-        					WebPCompressor.compressWebP(photoFile, photoFile, 0.5f, photoUploadPath, "productPhoto_"+i+"");
+        					WebPCompressor.compressWebP(photoFile, photoFile, 0.7f, photoUploadPath, "productPhoto_"+i+"");
 
-        					// saving relative path in patients photo
-//        					String photoRelPath = Paths.get(year, month, randomPath, CommonCode.PATIENT_PHOTO).toString();
-//        					PatientRegDocUploadDto docUploadDto = new PatientRegDocUploadDto();
-//        					docUploadDto.setPatientId(patientId.intValue());
-//        					docUploadDto.setDocumentName(CommonCode.PATIENT_PHOTO);
-//        					docUploadDto.setDocumentPath(photoRelPath);
-//        					docUploadDto.setStatus(CommonCode.IS_NOT_DELETED);
-//        					docUploadDto.setUnitId(Integer.parseInt(CommonUtils.getUserBean(request).getUserUnitId()));
-//        					regService.savePatientRegDocsInfo(docUploadDto);
+        					ProductImages image=new ProductImages();
+        					ProductMaster master=new ProductMaster();
+        					master.setProductId(productId.intValue());
+        					image.setProductMaster(master);
+        					image.setImagePath(environment.getProperty("product.virtual.images.path")+randomPath+File.separator+"productPhoto_"+i+".webp");
+        					image.setDeleted(Constants.NOT_DELETED);
+        					image.setStatus(Constants.STATUS_ACTIVE);
+        					
+        					productService.saveProductImage(image);
+        					
         				} catch (IllegalStateException | IOException e) {
         					e.printStackTrace();
         				}
                 	}
                 	i++;
                 }
+                }
+                
+                if(primaryImage!=null) {
+
+    				// saving file in the desired location
+    				LocalDateTime now = LocalDateTime.now();
+    				String year = String.valueOf(now.getYear());
+    				String month = String.format("%02d", now.getMonthValue()); // Ensure two-digit month
+    				// Construct the photo upload path
+    				String basePath = environment.getProperty("product.images.path");
+    				String randomPath = WebPCompressor.generateFixedRandomString(productId.toString(),
+    						Integer.parseInt("7"));
+    				String photoUploadPath = Paths.get(basePath, randomPath).toString();
+    				// Create directories if they don't exist
+    				File photoDir = new File(photoUploadPath);
+    				if (!photoDir.exists()) {
+    					photoDir.mkdirs();
+    				}
+    				// Save the file
+    				File photoFile = new File(photoDir, "productPhoto_p.webp");
+    				try {
+    					primaryImage.transferTo(photoFile);
+    					System.out.println("File uploaded successfully: " + photoFile.getAbsolutePath());
+    					WebPCompressor.compressWebP(photoFile, photoFile, 0.7f, photoUploadPath, "productPhoto_p");
+
+    					ProductImages image=new ProductImages();
+    					ProductMaster master=new ProductMaster();
+    					master.setProductId(productId.intValue());
+    					image.setProductMaster(master);
+    					image.setImagePath(environment.getProperty("product.virtual.images.path")+randomPath+File.separator+"productPhoto_p.webp");
+    					image.setDeleted(Constants.NOT_DELETED);
+    					image.setStatus(Constants.STATUS_ACTIVE);
+    					image.setIsPrimary(Constants.IMAGE_IS_PRIMARY);
+    					productService.saveProductImage(image);
+    					
+    				} catch (IllegalStateException | IOException e) {
+    					e.printStackTrace();
+    				}
+            	
+                }
+                
 
                 Map<String, String> response = new HashMap<>();
                 if (productId > 0) {
@@ -154,11 +198,9 @@ public class ProductController {
 
     // Fetch products with pagination (Asynchronous)
     @PostMapping("/pagination")
-    public CompletableFuture<ResponseEntity<PaginationResponse<ProductMasterBean>>> getAllProductsPagination(
+    public ResponseEntity<PaginationResponse<ProductMasterBean>> getAllProductsPagination(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int per_page) {
-        return CompletableFuture.supplyAsync(() -> {
-        	//if(redisTemplate.opsForValue().get(RedisKey.PRODUCT_PAGINATION.getKey(page,per_page))==null) {
             try {
                 List<ProductMasterBean> productList = productService.getAllProductsPagination(page, per_page);
                 int totalRows = !productList.isEmpty() ? productList.get(0).getTotalRecords() : 0;
@@ -166,7 +208,6 @@ public class ProductController {
                 response.setPage(page);
                 response.setTotalPages(totalRows);
                 response.setData(productList);
-                //redisTemplate.opsForValue().set(RedisKey.PRODUCT_PAGINATION.getKey(page,per_page), response);
                 return ResponseEntity.ok(response);
             } catch (Exception e) {
                 Map<String, String> errorResponse = new HashMap<>();
@@ -175,11 +216,8 @@ public class ProductController {
                 return ResponseEntity.status(500).body(new PaginationResponse());
             }
 //        	}else {
-//        		PaginationResponse<ProductMasterBean> response=(PaginationResponse<ProductMasterBean>)redisTemplate.opsForValue().get(RedisKey.PRODUCT_PAGINATION.getKey(page,per_page));
-//        		return ResponseEntity.ok(response);
 //        				
 //        	}
-        },taskExecutor);
     }
 
     // Delete product by ID (Asynchronous)
@@ -201,10 +239,14 @@ public class ProductController {
 
     // Get product by ID (Asynchronous)
     @GetMapping("/get-product-byid/{id}")
-    public CompletableFuture<ResponseEntity<Map<String, Object>>> getProductById(@PathVariable("id") Integer productId) {
-        return CompletableFuture.supplyAsync(() -> {
+    public ResponseEntity<Map<String, Object>> getProductById(@PathVariable("id") Integer productId) {
             try {
                 ProductMasterBean bean = productService.getProductById(productId);
+                
+                //fetching product images 
+                List<ProductImagesBean> beanList=productService.fetchProductImages(productId);
+                bean.setBeanList(beanList);
+                
                 Map<String, Object> response = new HashMap<>();
                 if (bean != null) {
                     response.put("data", bean);
@@ -221,7 +263,7 @@ public class ProductController {
                 errorResponse.put("status", "error");
                 return ResponseEntity.status(500).body(errorResponse);
             }
-        },taskExecutor);
+       
     }
     
     @GetMapping(value = "/fetch-all-products")
@@ -263,7 +305,8 @@ public class ProductController {
         }
 	}
     @GetMapping(value = "/fetch-four-random-by-categories")
-    public ResponseEntity<>
-    
-    
+    public ResponseEntity<List<ProductMasterBean>> fetchFourRandomByCategories(@RequestParam("currencyCode")String currencyCode){
+    	List<ProductMasterBean> productList=productService.fetchFourRandomByCategories(currencyCode);
+    	return ResponseEntity.ok(productList);
+    }
 }

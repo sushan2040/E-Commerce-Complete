@@ -151,7 +151,7 @@ public class UsersRepoImpl implements UsersRepository {
             else {
                 subModuleMasterQueryExecution.setParameter("menuTypeName", Constants.CUSTOMER_USERTYPE);
             }
-            subModuleMasterQueryExecution.setCacheable(true);
+           // subModuleMasterQueryExecution.setCacheable(true);
             List<SubModuleMasterBean> subModuleList = subModuleMasterQueryExecution.getResultList();
             transaction.commit(); // Commit the transaction
             return subModuleList;

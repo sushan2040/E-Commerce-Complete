@@ -3,7 +3,7 @@ package com.example.ecommerce.seller.inventory.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
+
 import java.util.concurrent.Executor;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,10 +57,9 @@ public class ProductSpecificationValueController {
 	}
 	 // ✅ Asynchronous Pagination method
     @PostMapping("/pagination")
-    public CompletableFuture<ResponseEntity<PaginationResponse<ProductSpecificationValueBean>>> getAllProductSpecificationValueMasterPagination(
+    public ResponseEntity<PaginationResponse<ProductSpecificationValueBean>> getAllProductSpecificationValueMasterPagination(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int per_page) {
-        return CompletableFuture.supplyAsync(() ->{
             List<ProductSpecificationValueBean> productSpecificationList = null;
             productSpecificationList = productSpecificationService.getAllProductSpecificationValueMasterPagination(page, per_page);
             int totalRows = !productSpecificationList.isEmpty() ? productSpecificationList.get(0).getTotalRecords() : 0;
@@ -70,7 +69,6 @@ public class ProductSpecificationValueController {
             response.setTotalPages(totalRows);
             response.setData(productSpecificationList);
             return ResponseEntity.ok(response);
-        },taskExecutor);
     }
     
  // Delete product by ID (Asynchronous)
@@ -92,8 +90,7 @@ public class ProductSpecificationValueController {
 
     // Get product by ID (Asynchronous)
     @GetMapping("/get-by-id/{id}")
-    public CompletableFuture<ResponseEntity<Map<String, Object>>> getProductById(@PathVariable("id") Integer productSpecificationValueId) {
-        return CompletableFuture.supplyAsync(() -> {
+    public ResponseEntity<Map<String, Object>> getProductById(@PathVariable("id") Integer productSpecificationValueId) {
             try {
             	ProductSpecificationValueBean bean = productSpecificationService.getProductSpecificationValueById(productSpecificationValueId);
                 Map<String, Object> response = new HashMap<>();
@@ -112,7 +109,6 @@ public class ProductSpecificationValueController {
                 errorResponse.put("status", "error");
                 return ResponseEntity.status(500).body(errorResponse);
             }
-        },taskExecutor);
     }
     
     @GetMapping(value = "/get-products-specification-and-values")
