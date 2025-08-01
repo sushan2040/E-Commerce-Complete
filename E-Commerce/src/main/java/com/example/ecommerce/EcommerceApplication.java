@@ -112,10 +112,7 @@ public static final org.slf4j.Logger logger = LoggerFactory.getLogger(EcommerceA
 
 		    // Use setAllowedOrigins instead of setAllowedOriginPatterns if not using wildcards
 		    List<String> allowedOrigins = List.of(
-		            "http://localhost:3000",
-			   "http://31.97.110.118",
-			  "http://31.97.110.118:80",
-			 "http://localhost:80", 
+		            "http://localhost:3000", 
 		            "https://ecommerce.codebysushant.com",
 		            "http://ecommerce.codebysushant.com",
 		            "http://ecommerce-nlb-frontend-803c4743c5de5a4b.elb.eu-north-1.amazonaws.com"
