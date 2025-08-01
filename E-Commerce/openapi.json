@@ -1,0 +1,799 @@
+{
+	"openapi": "3.0.1",
+	"info": {
+		"title": "OpenAPI definition",
+		"version": "v0"
+	},
+	"servers": [
+		{
+			"url": "http://localhost:8080",
+			"description": "Generated server url"
+		}
+	],
+	"paths": {
+		"/api/auth/seller-register": {
+			"post": {
+				"tags": [
+					"auth-controller"
+				],
+				"operationId": "sellerRegisterHandler",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/Users"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AuthResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/auth/register": {
+			"post": {
+				"tags": [
+					"auth-controller"
+				],
+				"operationId": "registerHandler",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/Users"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AuthResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/auth/login": {
+			"post": {
+				"tags": [
+					"auth-controller"
+				],
+				"operationId": "loginHandler",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/Users"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AuthResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/auth/get-user-access": {
+			"post": {
+				"tags": [
+					"auth-controller"
+				],
+				"operationId": "getUserAccess",
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/SubModuleMasterBean"
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api-data/submodule/save": {
+			"post": {
+				"tags": [
+					"sub-module-controller"
+				],
+				"operationId": "saveSubModule",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/SubModuleMasterBean"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": {
+										"type": "string"
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api-data/submodule/pagination": {
+			"post": {
+				"tags": [
+					"sub-module-controller"
+				],
+				"operationId": "getAllSubmodulesPagination",
+				"parameters": [
+					{
+						"name": "page",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int32",
+							"default": 1
+						}
+					},
+					{
+						"name": "per_page",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int32",
+							"default": 10
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PaginationResponseSubModuleMasterBean"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api-data/session-check/expired-or-not": {
+			"post": {
+				"tags": [
+					"session-controller"
+				],
+				"operationId": "isSessionExpired",
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": {
+										"type": "string"
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api-data/menu-type/save": {
+			"post": {
+				"tags": [
+					"menu-type-master-controller"
+				],
+				"operationId": "saveMenuType",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/MenuTypeMasterBean"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": {
+										"type": "string"
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api-data/country/save": {
+			"post": {
+				"tags": [
+					"country-master-controller"
+				],
+				"operationId": "saveCountry",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CountryMasterBean"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": {
+										"type": "string"
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api-data/country/pagination": {
+			"post": {
+				"tags": [
+					"country-master-controller"
+				],
+				"operationId": "getAllCountriesPagination",
+				"parameters": [
+					{
+						"name": "page",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int32",
+							"default": 1
+						}
+					},
+					{
+						"name": "per_page",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int32",
+							"default": 10
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PaginationResponseCountryMasterBean"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api-data/submodule/get-submodule-list": {
+			"get": {
+				"tags": [
+					"sub-module-controller"
+				],
+				"operationId": "getSubModuleList",
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/SubModuleMasterBean"
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api-data/submodule/get-submodule-byid/{id}": {
+			"get": {
+				"tags": [
+					"sub-module-controller"
+				],
+				"operationId": "getSubmoduleById",
+				"parameters": [
+					{
+						"name": "id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"format": "int32"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SubModuleMasterBean"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api-data/menu-type/get-menu-type-list": {
+			"get": {
+				"tags": [
+					"menu-type-master-controller"
+				],
+				"operationId": "getMenuTypeMasterList",
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/MenuTypeMasterBean"
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api-data/country/get-country-byid/{id}": {
+			"get": {
+				"tags": [
+					"country-master-controller"
+				],
+				"operationId": "getCountryById",
+				"parameters": [
+					{
+						"name": "id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"format": "int32"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/CountryMasterBean"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api-data/country/fetch-all-countries": {
+			"get": {
+				"tags": [
+					"country-master-controller"
+				],
+				"operationId": "fetchAllCountries",
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/CountryMasterBean"
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api-data/submodule/delete/{id}": {
+			"delete": {
+				"tags": [
+					"sub-module-controller"
+				],
+				"operationId": "deleteSubModule",
+				"parameters": [
+					{
+						"name": "id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"format": "int32"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": {
+										"type": "string"
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api-data/country/delete/{id}": {
+			"delete": {
+				"tags": [
+					"country-master-controller"
+				],
+				"operationId": "deleteCountry",
+				"parameters": [
+					{
+						"name": "id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"format": "int32"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": {
+										"type": "string"
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"components": {
+		"schemas": {
+			"GrantedAuthority": {
+				"type": "object",
+				"properties": {
+					"authority": {
+						"type": "string"
+					}
+				}
+			},
+			"Users": {
+				"type": "object",
+				"properties": {
+					"userId": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"email": {
+						"type": "string"
+					},
+					"username": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					},
+					"status": {
+						"type": "string"
+					},
+					"deleted": {
+						"type": "string"
+					},
+					"isUserSeller": {
+						"type": "string"
+					},
+					"createdBy": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"createdDate": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"updatedBy": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"updatedDate": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"macAddress": {
+						"type": "string"
+					},
+					"ipAddress": {
+						"type": "string"
+					},
+					"firstName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"countryCode": {
+						"type": "string"
+					},
+					"phoneNumber": {
+						"type": "string"
+					},
+					"countryId": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"businessName": {
+						"type": "string"
+					},
+					"isAdmin": {
+						"type": "string"
+					},
+					"authorities": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/GrantedAuthority"
+						}
+					}
+				}
+			},
+			"AuthResponse": {
+				"type": "object",
+				"properties": {
+					"token": {
+						"type": "string"
+					},
+					"message": {
+						"type": "string"
+					},
+					"status": {
+						"type": "string"
+					}
+				}
+			},
+			"SubModuleMasterBean": {
+				"type": "object",
+				"properties": {
+					"totalRecords": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"subModuleId": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"subModuleName": {
+						"type": "string"
+					},
+					"parentName": {
+						"type": "string"
+					},
+					"menuTypeName": {
+						"type": "string"
+					},
+					"menuTypeId": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"parentId": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"status": {
+						"type": "string"
+					},
+					"requestMapping": {
+						"type": "string"
+					},
+					"icon": {
+						"type": "string"
+					},
+					"subModule": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/SubModuleMasterBean"
+						}
+					}
+				}
+			},
+			"PaginationResponseSubModuleMasterBean": {
+				"type": "object",
+				"properties": {
+					"page": {
+						"type": "integer",
+						"description": "Current page",
+						"format": "int32",
+						"example": 1
+					},
+					"totalPages": {
+						"type": "integer",
+						"description": "Total pages",
+						"format": "int32",
+						"example": 10
+					},
+					"data": {
+						"type": "array",
+						"description": "Data list",
+						"items": {
+							"$ref": "#/components/schemas/SubModuleMasterBean"
+						}
+					}
+				},
+				"description": "Pagination Response Model"
+			},
+			"MenuTypeMasterBean": {
+				"type": "object",
+				"properties": {
+					"menuTypeId": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"menuTypeName": {
+						"type": "string"
+					}
+				}
+			},
+			"CountryMasterBean": {
+				"type": "object",
+				"properties": {
+					"totalRecords": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"status": {
+						"type": "string"
+					},
+					"deleted": {
+						"type": "string"
+					},
+					"createdBy": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"createdDate": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"updatedBy": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"updatedDate": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"macId": {
+						"type": "string"
+					},
+					"ipAddress": {
+						"type": "string"
+					},
+					"countryId": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"countryName": {
+						"type": "string"
+					},
+					"countryLocationLevels": {
+						"type": "integer",
+						"format": "int32"
+					}
+				}
+			},
+			"PaginationResponseCountryMasterBean": {
+				"type": "object",
+				"properties": {
+					"page": {
+						"type": "integer",
+						"description": "Current page",
+						"format": "int32",
+						"example": 1
+					},
+					"totalPages": {
+						"type": "integer",
+						"description": "Total pages",
+						"format": "int32",
+						"example": 10
+					},
+					"data": {
+						"type": "array",
+						"description": "Data list",
+						"items": {
+							"$ref": "#/components/schemas/CountryMasterBean"
+						}
+					}
+				},
+				"description": "Pagination Response Model"
+			}
+		},
+		"securitySchemes": {
+			"BearerAuth": {
+				"type": "apiKey",
+				"name": "Authorization",
+				"in": "header",
+				"scheme": "bearer"
+			}
+		}
+	}
+}

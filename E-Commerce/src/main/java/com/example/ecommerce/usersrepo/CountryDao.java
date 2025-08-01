@@ -1,0 +1,18 @@
+package com.example.ecommerce.usersrepo;
+
+import java.util.List;
+
+import com.example.ecommerce.configuration.beans.CountryMasterBean;
+
+public interface CountryDao {
+
+	public Long saveCountryMaster(CountryMasterBean bean);
+
+	public List<CountryMasterBean> fetchAllCountries();
+
+	public List<CountryMasterBean> getAllCountriesPagination(int page, int per_page);
+
+	public CountryMasterBean getCountryById(Integer countryId);
+
+	public Long deleteCountryId(Integer countryId);
+}

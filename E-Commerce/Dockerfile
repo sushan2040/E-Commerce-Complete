@@ -1,2 +1,5 @@
-FROM tomcat:9.0-jdk17
-COPY ecommerce/ecommerce/target/ /usr/local/tomcat/webapps/your-app.jar
+FROM amazoncorretto:17
+WORKDIR /app
+COPY target/ecommerce-0.0.1-SNAPSHOT.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]

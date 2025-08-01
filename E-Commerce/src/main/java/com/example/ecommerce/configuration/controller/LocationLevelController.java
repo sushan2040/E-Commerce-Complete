@@ -1,0 +1,131 @@
+package com.example.ecommerce.configuration.controller;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import com.example.ecommerce.configuration.beans.LocationLevelBean;
+import com.example.ecommerce.configuration.beans.PaginationResponse;
+import com.example.ecommerce.configuration.config.RedisKey;
+import com.example.ecommerce.configuration.service.LocationLevelService;
+import com.example.ecommerce.constants.Constants;
+
+import jakarta.servlet.http.HttpServletRequest;
+
+@RestController
+@RequestMapping(value = "/api-data/location-level")
+public class LocationLevelController {
+
+    @Autowired
+    private LocationLevelService locationLevelService;
+    
+    @Autowired
+    private RedisTemplate<String,Object> redisTemplate; 
+    
+    @Autowired
+    @Qualifier("taskExecutor")
+    private Executor taskExecutor;
+
+    // Asynchronous Save Location Level
+    @PostMapping("/save")
+    public CompletableFuture<ResponseEntity<Map<String, String>>> saveLocationLevel(
+            @RequestHeader HttpHeaders headers,
+            @RequestBody LocationLevelBean bean,
+            HttpServletRequest request) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                bean.setStatus(Constants.USER_STATUS_ACTIVE);
+                bean.setDeleted(Constants.USER_NOT_DELETED);
+
+                Long count = locationLevelService.saveLocationLevelMaster(bean);
+                Map<String, String> response = new HashMap<>();
+                response.put("message", count == 1 ? "success" : "error");
+
+                return ResponseEntity.ok(response);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "error");
+                return ResponseEntity.ok(response);
+            }
+        },taskExecutor);
+    }
+
+    // Asynchronous Fetch All Location Levels
+    @GetMapping("/fetch-all-location-levels")
+    public CompletableFuture<ResponseEntity<List<LocationLevelBean>>> fetchAllLocationLevels() {
+        return CompletableFuture.supplyAsync(() -> {
+        	if(redisTemplate.opsForValue().get(RedisKey.LOCATION_LEVELS_ALL.getKey())==null) {
+            List<LocationLevelBean> locationLevels = locationLevelService.fetchAllLocationLevels();
+            redisTemplate.opsForValue().set(RedisKey.LOCATION_LEVELS_ALL.getKey(), locationLevels);
+            return ResponseEntity.ok(locationLevels);
+        	}else {
+        		List<LocationLevelBean> locationLevels=(List<LocationLevelBean>)redisTemplate.opsForValue().get(RedisKey.LOCATION_LEVELS_ALL);
+        		return ResponseEntity.ok(locationLevels);
+        	}
+        },taskExecutor);
+    }
+
+    // Asynchronous Pagination for Location Levels
+    @PostMapping("/pagination")
+    public CompletableFuture<ResponseEntity<PaginationResponse<LocationLevelBean>>> getAllLocationLevelsPagination(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int per_page) {
+        return CompletableFuture.supplyAsync(() -> {
+        	if(redisTemplate.opsForValue().get(RedisKey.LOCATION_LEVELS_PAGINATION.getKey(page,per_page))==null) {
+            List<LocationLevelBean> locationLevelsList = locationLevelService.getAllLocationLevelsPagination(page, per_page);
+            int totalRows = !locationLevelsList.isEmpty() ? locationLevelsList.get(0).getTotalRecords() : 0;
+
+            PaginationResponse<LocationLevelBean> response = new PaginationResponse<>();
+            response.setPage(page);
+            response.setTotalPages(totalRows);
+            response.setData(locationLevelsList);
+            redisTemplate.opsForValue().set(RedisKey.LOCATION_LEVELS_PAGINATION.getKey(page,per_page), response);
+            return ResponseEntity.ok(response);
+        	}else {
+        		PaginationResponse<LocationLevelBean> locationLevels=
+        				(PaginationResponse<LocationLevelBean>)redisTemplate.opsForValue().get(RedisKey.LOCATION_LEVELS_PAGINATION.getKey(page,per_page));
+        		return ResponseEntity.ok(locationLevels);
+        	}
+        },taskExecutor);
+    }
+
+    // Asynchronous Delete Location Level
+    @DeleteMapping("/delete/{id}")
+    public CompletableFuture<ResponseEntity<Map<String, String>>> deleteLocationLevel(@PathVariable("id") Integer locationLevelId) {
+        return CompletableFuture.supplyAsync(() -> {
+            Long count = locationLevelService.deletelocationLevelId(locationLevelId);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", count > 0 ? Constants.DELETE_SUCCESS_MESSAGE : Constants.DELETE_FAIL_MESSAGE);
+            return ResponseEntity.ok(response);
+        },taskExecutor);
+    }
+
+    // Asynchronous Get Location Level by ID
+    @GetMapping("/get-location-level-byid/{id}")
+    public CompletableFuture<ResponseEntity<LocationLevelBean>> getLocationLevelById(@PathVariable("id") Integer locationLevelId) {
+        return CompletableFuture.supplyAsync(() -> {
+            LocationLevelBean bean = locationLevelService.getLocationLevelById(locationLevelId);
+            return ResponseEntity.ok(bean);
+        },taskExecutor);
+    }
+
+    // Asynchronous Get Location Levels by Country ID
+    @PostMapping("/get-location-levels-bycountryid/{id}")
+    public CompletableFuture<ResponseEntity<Integer>> getLocationLevelsByCountryId(@PathVariable("id") Integer countryId) {
+        return CompletableFuture.supplyAsync(() -> {
+            Integer locationLevels = locationLevelService.getLocationLevelsByCountryId(countryId);
+            return ResponseEntity.ok(locationLevels);
+        },taskExecutor);
+    }
+}
