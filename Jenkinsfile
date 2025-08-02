@@ -106,7 +106,8 @@ pipeline {
                 // Deployment handled in Build stages; add more steps if needed
             }
         }
-        post {
+    }
+    post {
             always {
                 // Delete folders if build fails
                 sh 'rm -rf E-Commerce ecommerce || true'
@@ -121,5 +122,4 @@ pipeline {
                 echo "Build failed. Folders cleaned as part of always block."
             }
         }
-    }
 }
