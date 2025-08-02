@@ -183,6 +183,7 @@ export default function LocationLevelMaster() {
 
     useEffect(() => {
         fetchCountries();
+        fetchlocationLevelMasterData(0);
     }, [])
 
     const validate = () => {

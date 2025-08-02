@@ -165,7 +165,7 @@ export default function BrandMaster() {
     };
 
     useEffect(() => {
-
+        fetchbrandMasterData(0);
     }, [])
 
     const validate = () => {

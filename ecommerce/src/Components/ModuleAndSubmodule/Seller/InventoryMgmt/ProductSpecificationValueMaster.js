@@ -278,6 +278,7 @@ export default function ProductSpecificationValueMaster() {
         fetchProducts();
         fetchCommonData();
         fetchBridgeParameters();
+        fetchProductSpecificationValueMasterData(0);
     }, [])
 
 

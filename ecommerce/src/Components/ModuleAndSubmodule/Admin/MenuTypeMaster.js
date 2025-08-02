@@ -172,7 +172,7 @@ export default function MenuTypeMaster() {
     };
 
     useEffect(() => {
-
+        fetchMenuTypeMasterData(0);
     }, [])
 
     const validate = () => {

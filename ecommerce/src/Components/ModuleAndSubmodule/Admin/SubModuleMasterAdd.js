@@ -200,7 +200,7 @@ export default function SubModuleMasterAdd() {
     };
 
     useEffect(() => {
-
+        fetchSubModuleMasterData(0);
     }, []);
 
     const [menuTypeList, setMenuTypeList] = useState([]);

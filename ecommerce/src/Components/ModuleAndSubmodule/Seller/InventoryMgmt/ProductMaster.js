@@ -55,6 +55,7 @@ export default function ProductMaster() {
         fetchCountries();
         fetchBrands();
         fetchProductCategories();
+        fetchProductMasterData(0);
     }, [])
 
     const columns = [

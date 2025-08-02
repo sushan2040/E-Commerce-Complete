@@ -125,6 +125,7 @@ export default function LocationLevel2Master() {
 
     useEffect(() => {
         fetchCountries();
+        fetchLevel2MasterData(0);
     }, [])
 
     function editLevel2MasterForm(row) {

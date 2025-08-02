@@ -267,6 +267,7 @@ export default function AddUser() {
         fetchRoles();
         fetchCountries();
         fetchDepartments();
+        fetchEmployeeMasterData(0);
     }, [])
 
     return (

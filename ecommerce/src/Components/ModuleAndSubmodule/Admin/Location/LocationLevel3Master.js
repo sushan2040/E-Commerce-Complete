@@ -125,6 +125,7 @@ export default function LocationLevel3Master() {
 
     useEffect(() => {
         fetchCountries();
+        fetchLevel3MasterData(0);
     }, [])
 
     function editLevel3MasterForm(row) {

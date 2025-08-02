@@ -131,7 +131,7 @@ export default function CountryMaster() {
     };
 
     useEffect(() => {
-
+        fetchCountryMasterData(0);
     }, [])
 
     function editCountryMasterForm(row) {

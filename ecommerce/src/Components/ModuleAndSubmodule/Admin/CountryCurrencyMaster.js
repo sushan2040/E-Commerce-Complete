@@ -142,6 +142,7 @@ export default function CountryCurrencyMaster() {
 
     useEffect(() => {
         fetchCountries();
+        fetchCountryCurrencyMasterData(0);
     }, [])
 
     function editCountryCurrencyMasterForm(row) {
