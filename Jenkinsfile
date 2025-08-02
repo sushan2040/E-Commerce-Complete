@@ -15,7 +15,6 @@ pipeline {
                     chmod -R u+w .
                 '''
             }
-        }
         stage('Checkout SCM') {
             steps {
                 git url: 'https://github.com/sushan2040/E-Commerce-Complete.git', branch: 'main'
