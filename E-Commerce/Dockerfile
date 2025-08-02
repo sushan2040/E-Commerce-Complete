@@ -1,5 +1,5 @@
-FROM amazoncorretto:17
+FROM openjdk:17-jdk-slim
 WORKDIR /app
 COPY target/ecommerce-0.0.1-SNAPSHOT.jar app.jar
-EXPOSE 8080
+ENV DB_URL=${DB_URL} DB_USERNAME=${DB_USERNAME} DB_PASSWORD=${DB_PASSWORD}
 ENTRYPOINT ["java", "-jar", "app.jar"]
