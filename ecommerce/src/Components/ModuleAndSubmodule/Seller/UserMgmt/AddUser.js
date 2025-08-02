@@ -259,6 +259,8 @@ export default function AddUser() {
                 'Authorization': `Bearer ${localStorage.getItem("authToken")}`,
             }
         });
+        console.log("employees" + response.data.data);
+        console.log("response:" + JSON.stringify(response));
         setData(response.data.data);
         setTotalRows(response.data.totalPages);
         setLoading(false);
