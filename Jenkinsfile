@@ -46,9 +46,9 @@ pipeline {
                     cd ecommerce
                     npm install --legacy-peer-deps
                     npm run build || true
+                    apt-get update && apt-get install -y docker.io
                     if [ -d "./build" ]; then
                         echo "Build directory exists, building frontend image..."
-                        apt-get update && apt-get install -y docker.io
                         docker build -t ecommerce-frontend:latest .
                     else
                         echo "Error: Build directory not found!"
