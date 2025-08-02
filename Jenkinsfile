@@ -48,6 +48,7 @@ pipeline {
                 cd ..
                 cd ..
                 '''
+            }
             },
              stage('Build frontend') {
             steps {
@@ -69,6 +70,8 @@ pipeline {
             }
             }
         }
+        }
+    }
         stage('Test') {
             steps {
                 echo 'Testing..'
