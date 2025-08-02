@@ -4,13 +4,9 @@ pipeline {
         pollSCM('* * * * *') // Polls every minute (adjusted for your Jenkins version)
     }
     stages {
-        stage('Prepare Workspace') {
-            steps {
-                deleteDir() // Clean the workspace to remove stale permissions
-            }
-        }
         stage('Checkout SCM') {
             steps {
+                deleteDir() 
                 git url: 'https://github.com/sushan2040/E-Commerce-Complete.git', branch: 'main'
             }
         }
