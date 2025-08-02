@@ -1,5 +1,10 @@
 pipeline {
     agent any
+    environment {
+        DB_URL = credentials('ecommerce-db-url')
+        DB_USERNAME = credentials('ecommerce-db-username')
+        DB_PASSWORD = credentials('ecommerce-db-password')
+    }
     triggers {
         pollSCM('* * * * *') // Polls every minute (adjusted for your Jenkins version)
     }
