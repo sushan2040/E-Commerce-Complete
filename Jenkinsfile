@@ -32,16 +32,15 @@ pipeline {
                         sh '''
                             cd E-Commerce
                             mvn clean install
-                           npm install -g docker
-                            docker build -t ecommerce-backend:latest .
                         '''
                     }
                     // Frontend build in node image
                     docker.image('node:20-alpine').inside('-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=""') {
                         sh '''
+                             npm install -g docker
+                            docker build -t ecommerce-backend:latest .
                             cd ecommerce
                             npm install --legacy-peer-deps
-                            npm install -g docker
                             npm run build
                             if [ -d "./build" ]; then
                                 echo "Build directory exists, building frontend image..."
