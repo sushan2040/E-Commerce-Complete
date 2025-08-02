@@ -21,15 +21,15 @@ pipeline {
                 sh '''
                     cd E-Commerce
                     mvn clean install
-                    PID=$(sudo lsof -i :8081 -t)
+                    PID=$(lsof -i :8081 -t)
                     if [ -n "$PID" ]; then
                         echo "Found E-Commerce running with PID: $PID"
                         echo "Attempting to terminate E-Commerce (PID: $PID) gracefully..."
-                        sudo kill "$PID"
+                         kill "$PID"
                         sleep 2
                         if ps -p "$PID" > /dev/null; then
                             echo "Process still running, forcing termination..."
-                            sudo kill -9 "$PID"
+                             kill -9 "$PID"
                         fi
                         if ! ps -p "$PID" > /dev/null; then
                             echo "Previous E-Commerce instance terminated."
@@ -59,8 +59,8 @@ pipeline {
                     cd ecommerce
                     npm install --legacy-peer-deps
                     npm run build
-                    sudo cp -r ./build/* /var/www/html
-                    sudo systemctl restart nginx
+                     cp -r ./build/* /var/www/html
+                     systemctl restart nginx
                     echo "Frontend deployment successful!"
                 '''
             }
