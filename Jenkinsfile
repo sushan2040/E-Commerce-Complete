@@ -57,6 +57,7 @@ pipeline {
                 docker {
                     image 'docker:27.1.1'
                     reuseNode true
+                    args '-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=""'
                 }
             }
             steps {
