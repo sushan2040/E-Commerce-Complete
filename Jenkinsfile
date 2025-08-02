@@ -4,7 +4,7 @@ pipeline {
         DB_URL = credentials('ecommerce-db-url')
         DB_USERNAME = credentials('ecommerce-db-username')
         DB_PASSWORD = credentials('ecommerce-db-password')
-        PASSWORD=credentials('root-password')
+        PASSWORD=credentials('sudo-password')
     }
     stages {
         stage('Switch to Root and Prepare Workspace') {
