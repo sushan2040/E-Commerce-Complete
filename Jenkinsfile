@@ -14,7 +14,6 @@ pipeline {
                         exit 1
                     fi
                     sudo -n whoami | grep -q root || { echo "Failed to switch to root; ensure passwordless sudo is configured for Jenkins user"; exit 1; }
-                    sudo -n cleanWs
                     sudo -n chown -R $(whoami):$(whoami) . || true
                     sudo -n chmod -R u+w .
                 '''
@@ -82,6 +81,25 @@ pipeline {
                     fi
                 '''
             }
+        }
+    }
+    post {
+        always {
+            sh '''
+                sudo -n rm -rf E-Commerce ecommerce || true
+                echo "Cleaned up E-Commerce and ecommerce folders."
+            '''
+        }
+        success {
+            archiveArtifacts artifacts: 'E-Commerce/target/*.jar', allowEmptyArchive: true
+            echo "Build and deployment successful. Folders already cleaned."
+        }
+        failure {
+            sh '''
+                echo "Build failed. Folders cleaned as part of always block."
+                docker stop ecommerce-backend ecommerce-frontend || true
+                docker rm ecommerce-backend ecommerce-frontend || true
+            '''
         }
     }
 }
