@@ -6,9 +6,13 @@ pipeline {
         DB_PASSWORD = credentials('ecommerce-db-password')
     }
     stages {
+        stage('Prepare Workspace') {
+            steps {
+                cleanWs() // Clean the workspace before any operations
+            }
+        }
         stage('Checkout SCM') {
             steps {
-                 cleanWs()
                 git url: 'https://github.com/sushan2040/E-Commerce-Complete.git', branch: 'main'
             }
         }
@@ -24,37 +28,7 @@ pipeline {
                 sh '''
                     cd E-Commerce
                     mvn clean install
-                    # Check if port 8081 is in use (alternative without lsof)
-                    PORT_IN_USE=$(netstat -tulpn 2>/dev/null | grep :8081 || true)
-                    if [ -n "$PORT_IN_USE" ]; then
-                        echo "Port 8081 is in use. Attempting to terminate the process..."
-                        PID=$(netstat -tulpn 2>/dev/null | grep :8081 | awk '{print $7}' | cut -d'/' -f1)
-                        if [ -n "$PID" ]; then
-                            kill "$PID" 2>/dev/null || true
-                            sleep 2
-                            if kill -0 "$PID" 2>/dev/null; then
-                                kill -9 "$PID" 2>/dev/null || true
-                            fi
-                            if ! kill -0 "$PID" 2>/dev/null; then
-                                echo "Previous E-Commerce instance terminated."
-                            else
-                                echo "Failed to terminate E-Commerce on port 8081."
-                                exit 1
-                            fi
-                        fi
-                    else
-                        echo "No E-Commerce instance found running on port 8081."
-                    fi
-                    cd target/
-                    nohup java -jar ecommerce-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
-                    sleep 10
-                    if curl -s http://localhost:8081 > /dev/null; then
-                        echo "Backend deployment successful!"
-                    else
-                        echo "Backend failed to start on port 8081"
-                        cat app.log
-                        exit 1
-                    fi
+                    docker build -t ecommerce-backend:latest .
                 '''
             }
         }
@@ -72,15 +46,44 @@ pipeline {
                     npm install --legacy-peer-deps
                     npm run build || true
                     if [ -d "./build" ]; then
-                        echo "Build directory exists, copying files..."
-                        mkdir -p /var/www/html
-                        cp -r ./build/* /var/www/html/
-                        echo "Files copied successfully."
+                        echo "Build directory exists, building frontend image..."
+                        docker build -t ecommerce-frontend:latest .
                     else
                         echo "Error: Build directory not found!"
                         exit 1
                     fi
-                    systemctl restart nginx || echo "Warning: systemctl not available in container; restart nginx manually on host"
+                '''
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sh '''
+                    # Stop and remove existing containers if they exist
+                    docker stop ecommerce-backend ecommerce-frontend || true
+                    docker rm ecommerce-backend ecommerce-frontend || true
+
+                    # Run backend container
+                    docker run -d --name ecommerce-backend -p 8081:8081 \
+                        -e DB_URL=$DB_URL \
+                        -e DB_USERNAME=$DB_USERNAME \
+                        -e DB_PASSWORD=$DB_PASSWORD \
+                        ecommerce-backend:latest
+
+                    # Run frontend container
+                    docker run -d --name ecommerce-frontend -p 80:80 \
+                        --link ecommerce-backend:backend \
+                        ecommerce-frontend:latest
+
+                    # Wait for services to start
+                    sleep 10
+
+                    # Verify deployments
+                    if curl -s http://localhost:8081 > /dev/null; then
+                        echo "Backend deployment successful!"
+                    else
+                        echo "Backend failed to start"
+                        exit 1
+                    fi
                     if curl -s http://localhost > /dev/null; then
                         echo "Frontend deployment successful!"
                     else
@@ -93,31 +96,26 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Testing...'
-                // Add test commands, e.g., sh 'cd E-Commerce && mvn test' or sh 'cd ecommerce && npm run test'
-            }
-        }
-        stage('Deploy') {
-            steps {
-                echo 'Deploying...'
-                // Deployment handled in Build stages; add more steps if needed
+                // Add test commands if needed
             }
         }
     }
     post {
-            always {
-                // Delete folders if build fails
-                //sh 'rm -rf E-Commerce ecommerce || true'
-                echo "Cleaned up E-Commerce and ecommerce folders."
-            }
-            success {
-                // Additional cleanup or confirmation on success
-                 //sh 'rm -rf E-Commerce ecommerce || true'
-                echo "Build and deployment successful. Folders already cleaned."
-            }
-            failure {
-                // Ensure cleanup on failure
-                // sh 'rm -rf E-Commerce ecommerce || true'
-                echo "Build failed. Folders cleaned as part of always block."
-            }
+        always {
+            // Delete folders if build fails or completes
+            sh 'rm -rf E-Commerce ecommerce || true'
+            echo "Cleaned up E-Commerce and ecommerce folders."
         }
+        success {
+            // Confirmation on success
+            echo "Build and deployment successful. Folders already cleaned."
+        }
+        failure {
+            // Log failure and rely on always block for cleanup
+            echo "Build failed. Folders cleaned as part of always block."
+            // Stop and remove containers on failure
+            sh 'docker stop ecommerce-backend ecommerce-frontend || true'
+            sh 'docker rm ecommerce-backend ecommerce-frontend || true'
+        }
+    }
 }
