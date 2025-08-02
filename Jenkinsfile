@@ -14,6 +14,7 @@ pipeline {
                 docker {
                     image 'maven:3.8.6-eclipse-temurin-17'
                     reuseNode true
+                      args "-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=''"
                 }
             }
             steps {
@@ -50,6 +51,7 @@ pipeline {
                 docker {
                     image 'node:20-alpine'
                     reuseNode true
+                      args "-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=''"
                 }
             }
             steps {
