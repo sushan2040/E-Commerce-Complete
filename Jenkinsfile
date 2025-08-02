@@ -73,7 +73,6 @@ pipeline {
                         -e DB_PASSWORD="$DB_PASSWORD" \
                         ecommerce-backend:latest
                     docker run -d --name ecommerce-frontend --network ecommerce-network -p 80:80 \
-                     -e REACT_APP_API_URL="$REACT_APP_API_URL" \
                         ecommerce-frontend:latest
                     sleep 10
                      # Check backend deployment
