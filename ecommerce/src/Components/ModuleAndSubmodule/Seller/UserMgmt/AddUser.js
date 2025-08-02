@@ -261,7 +261,7 @@ export default function AddUser() {
         });
         console.log("employees" + response.data.data);
         console.log("response:" + JSON.stringify(response));
-        setData(response.data.data);
+        setTableData(response.data.data);
         setTotalRows(response.data.totalPages);
         setLoading(false);
     };
