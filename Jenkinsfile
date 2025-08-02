@@ -49,7 +49,7 @@ pipeline {
                 cd ..
                 '''
             }
-            },
+            }
              stage('Build frontend') {
             steps {
                agent {
@@ -71,7 +71,6 @@ pipeline {
             }
         }
         }
-    }
         stage('Test') {
             steps {
                 echo 'Testing..'
