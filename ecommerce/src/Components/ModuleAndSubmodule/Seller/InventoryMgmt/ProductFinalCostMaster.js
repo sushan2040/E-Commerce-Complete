@@ -183,34 +183,42 @@ export default function ProductFinalCostMaster() {
                 Object.entries(selectedValues).map(([key, value]) => (
                     specificationMap.set(key, value)
                 ))
-                countries.forEach(element => {
-                    var obj = {};
-                    obj.specifications = specifications;
-                    obj.productSpecList = specifications;
-                    obj.productId = parseInt(producthiddenId);
-                    obj.countryId = parseInt(formData.countryId);
-                    obj.cost = parseFloat(formData.cost);
-                    obj.productFinalCostId = parseInt(productFinalCostHiddenId);
-                    obj.productName = productHiddenName;
+
+                var obj = {};
+                obj.specifications = specifications;
+                obj.productSpecList = specifications;
+                obj.productId = parseInt(producthiddenId);
+                obj.countryId = parseInt(formData.countryId);
+                obj.cost = parseFloat(formData.cost);
+                obj.productFinalCostId = parseInt(productFinalCostHiddenId);
+                obj.productName = productHiddenName;
 
 
-                    console.log(obj);
-                    var tempArray = finalResult;
-                    tempArray.push(obj);
-                    setFinalResult(tempArray);
-                    console.log(finalResult)
-                    var specificationName = "";
-                    Object.entries(specificationDropdowns).map(([key, value]) => {
-                        // Iterate over the value array (which is an array of elements)
-                        value.forEach(element => {
-                            if (specifications.indexOf("" + element.productSpecificationValueMasterId) !== -1) {
-                                specificationName += element.value + ",";
-                            }
-                        });
+                console.log(obj);
+                var tempArray = finalResult;
+                tempArray.push(obj);
+                setFinalResult(tempArray);
+                console.log(finalResult)
+                var specificationName = "";
+                Object.entries(specificationDropdowns).map(([key, value]) => {
+                    // Iterate over the value array (which is an array of elements)
+                    value.forEach(element => {
+                        if (specifications.indexOf("" + element.productSpecificationValueMasterId) !== -1) {
+                            specificationName += element.value + ",";
+                        }
                     });
-                    setData((prevData) => [...prevData, obj])
+                });
 
-                })
+                if (formData.countryId.indexOf(element.id) !== -1) {
+                    formData.countryId.forEach(selected => {
+                        if (element.id === selected) {
+                            obj.countryName = element.value;
+                            console.log(specificationName);
+                            obj.specificationName = specificationName;;
+                            setData((prevData) => [...prevData, obj])
+                        }
+                    })
+                }
             }
         })
 
