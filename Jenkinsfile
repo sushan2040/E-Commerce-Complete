@@ -7,6 +7,7 @@ pipeline {
     }
     stages {
         stage('Prepare Workspace') {
+             steps {
             sh '''
                     # Clean workspace and fix permissions
                     cleanWs()
@@ -14,6 +15,7 @@ pipeline {
                     chown -R jenkins:jenkins . || true
                     chmod -R u+w .
                 '''
+             }
             }
         stage('Checkout SCM') {
             steps {
