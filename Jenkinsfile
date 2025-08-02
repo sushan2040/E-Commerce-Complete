@@ -6,17 +6,23 @@ pipeline {
         DB_PASSWORD = credentials('ecommerce-db-password')
     }
     stages {
-        stage('Prepare Workspace') {
-             steps {
-            sh '''
-                    # Clean workspace and fix permissions
-                    cleanWs()
-                    # Ensure workspace is writable by Jenkins
-                    chown -R jenkins:jenkins . || true
-                    chmod -R u+w .
+        stage('Switch to Root and Prepare Workspace') {
+            steps {
+                sh '''
+                    # Ensure sudo is available
+                    if ! command -v sudo >/dev/null 2>&1; then
+                        echo "sudo not found, please ensure it is installed"
+                        exit 1
+                    fi
+                    # Switch to root for workspace preparation
+                    sudo -n whoami | grep -q root || { echo "Failed to switch to root"; exit 1; }
+                    # Clean workspace and fix permissions as root
+                    sudo cleanWs()
+                    sudo chown -R $(whoami):$(whoami) . || true
+                    sudo chmod -R u+w .
                 '''
-             }
             }
+        }
         stage('Checkout SCM') {
             steps {
                 git url: 'https://github.com/sushan2040/E-Commerce-Complete.git', branch: 'main'
