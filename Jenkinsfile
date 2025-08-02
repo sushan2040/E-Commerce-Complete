@@ -64,8 +64,6 @@ pipeline {
                 docker build -t ecommerce-backend:latest ./E-Commerce
                     docker build -t ecommerce-frontend:latest ./ecommerce
                     docker network create ecommerce-network || true
-                    docker stop ecommerce-backend ecommerce-frontend || true
-                    docker rm ecommerce-backend ecommerce-frontend || true
                     docker run -d --name ecommerce-backend --network ecommerce-network -p 8081:8081 \
                         -e DB_URL="$DB_URL" \
                         -e DB_USERNAME="$DB_USERNAME" \
@@ -74,16 +72,20 @@ pipeline {
                     docker run -d --name ecommerce-frontend --network ecommerce-network -p 80:80 \
                         ecommerce-frontend:latest
                     sleep 10
-                    if curl -s http://localhost:8081 > /dev/null; then
+                     # Check backend deployment
+                    if [ "$(docker inspect --format '{{.State.Running}}' ecommerce-backend)" = "true" ] && \
+                       docker inspect --format '{{.NetworkSettings.Ports}}' ecommerce-backend | grep -q "8081"; then
                         echo "Backend deployment successful!"
                     else
-                        echo "Backend failed to start"
+                        echo "Backend failed to start or port 8081 not mapped"
                         exit 1
                     fi
-                    if curl -s http://localhost > /dev/null; then
+                    # Check frontend deployment
+                    if [ "$(docker inspect --format '{{.State.Running}}' ecommerce-frontend)" = "true" ] && \
+                       docker inspect --format '{{.NetworkSettings.Ports}}' ecommerce-frontend | grep -q "80"; then
                         echo "Frontend deployment successful!"
                     else
-                        echo "Frontend not accessible"
+                        echo "Frontend failed to start or port 80 not mapped"
                         exit 1
                     fi
                 '''
