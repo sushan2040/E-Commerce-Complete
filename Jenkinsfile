@@ -75,8 +75,15 @@ pipeline {
                     cd ecommerce
                     npm install --legacy-peer-deps
                     npm run build || true
-                    cp -r ./build/* /var/www/html
-                    # Restart nginx (note: systemctl may not work in container; use host command if needed)
+                    if [ -d "./build" ]; then
+                        echo "Build directory exists, copying files..."
+                        mkdir -p /var/www/html
+                        cp -r ./build/* /var/www/html/
+                        echo "Files copied successfully."
+                    else
+                        echo "Error: Build directory not found!"
+                        exit 1
+                    fi
                     systemctl restart nginx || echo "Warning: systemctl not available in container; restart nginx manually on host"
                     if curl -s http://localhost > /dev/null; then
                         echo "Frontend deployment successful!"
