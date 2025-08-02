@@ -11,11 +11,6 @@ pipeline {
                   cleanWs()// Clean the workspace before any operations
             }
         }
-        stage('Checkout SCM') {
-            steps {
-                git url: 'https://github.com/sushan2040/E-Commerce-Complete.git', branch: 'main'
-            }
-        }
         stage('Build Backend') {
             agent {
                 docker {
