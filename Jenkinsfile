@@ -4,11 +4,11 @@ pipeline {
         DB_URL = credentials('ecommerce-db-url')
         DB_USERNAME = credentials('ecommerce-db-username')
         DB_PASSWORD = credentials('ecommerce-db-password')
+        SUDO_PASSWORD = credentials('sudo-password')
     }
     stages {
         stage('Switch to Root and Prepare Workspace') {
             steps {
-                withCredentials([string(credentialsId: 'sudo-password', variable: 'SUDO_PASSWORD')]) {
                     sh '''
                         # Ensure sudo is available
                         if ! command -v sudo >/dev/null 2>&1; then
@@ -22,19 +22,16 @@ pipeline {
                         echo "$SUDO_PASSWORD" | sudo -S chown -R $(whoami):$(whoami) . || true
                         echo "$SUDO_PASSWORD" | sudo -S chmod -R u+w .
                     '''
-                }
             }
         }
         stage('Checkout SCM') {
             steps {
-                withCredentials([string(credentialsId: 'sudo-password', variable: 'SUDO_PASSWORD')]) {
                     sh '''
                         # Run git commands as root
                         echo "$SUDO_PASSWORD" | sudo -S rm -rf E-Commerce-Complete
                         echo "$SUDO_PASSWORD" | sudo -S git clone --branch main https://github.com/sushan2040/E-Commerce-Complete.git
                     '''
                 }
-            }
         }
         stage('Build Backend') {
             agent {
@@ -53,12 +50,10 @@ pipeline {
         }
         stage('Build Backend Image') {
             steps {
-                withCredentials([string(credentialsId: 'sudo-password', variable: 'SUDO_PASSWORD')]) {
                     sh '''
                         echo "$SUDO_PASSWORD" | sudo -S docker build -t ecommerce-backend:latest ./E-Commerce
                     '''
                 }
-            }
         }
         stage('Build Frontend') {
             agent {
@@ -78,16 +73,13 @@ pipeline {
         }
         stage('Build Frontend Image') {
             steps {
-                withCredentials([string(credentialsId: 'sudo-password', variable: 'SUDO_PASSWORD')]) {
                     sh '''
                         echo "$SUDO_PASSWORD" | sudo -S docker build -t ecommerce-frontend:latest ./ecommerce
                     '''
                 }
-            }
         }
         stage('Deploy') {
             steps {
-                withCredentials([string(credentialsId: 'sudo-password', variable: 'SUDO_PASSWORD')]) {
                     sh '''
                         echo "$SUDO_PASSWORD" | sudo -S docker network create ecommerce-network || true
                         echo "$SUDO_PASSWORD" | sudo -S docker stop ecommerce-backend ecommerce-frontend || true
@@ -114,7 +106,6 @@ pipeline {
                         fi
                     '''
                 }
-            }
         }
         stage('Test') {
             parallel {
@@ -153,25 +144,21 @@ pipeline {
     }
     post {
         always {
-            withCredentials([string(credentialsId: 'sudo-password', variable: 'SUDO_PASSWORD')]) {
                 sh '''
                     echo "$SUDO_PASSWORD" | sudo -S rm -rf E-Commerce ecommerce || true
                     echo "Cleaned up E-Commerce and ecommerce folders."
                 '''
-            }
         }
         success {
             archiveArtifacts artifacts: 'E-Commerce/target/*.jar', allowEmptyArchive: true
             echo "Build and deployment successful. Folders already cleaned."
         }
         failure {
-            withCredentials([string(credentialsId: 'sudo-password', variable: 'SUDO_PASSWORD')]) {
                 sh '''
                     echo "Build failed. Folders cleaned as part of always block."
                     echo "$SUDO_PASSWORD" | sudo -S docker stop ecommerce-backend ecommerce-frontend || true
                     echo "$SUDO_PASSWORD" | sudo -S docker rm ecommerce-backend ecommerce-frontend || true
                 '''
-            }
         }
     }
 }
