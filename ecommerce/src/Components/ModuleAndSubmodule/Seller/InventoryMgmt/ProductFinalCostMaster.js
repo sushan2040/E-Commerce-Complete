@@ -208,17 +208,8 @@ export default function ProductFinalCostMaster() {
                             }
                         });
                     });
+                    setData((prevData) => [...prevData, obj])
 
-                    if (formData.countryId.indexOf(element.id) !== -1) {
-                        formData.countryId.forEach(selected => {
-                            if (element.id === selected) {
-                                obj.countryName = element.value;
-                                console.log(specificationName);
-                                obj.specificationName = specificationName;;
-                                setData((prevData) => [...prevData, obj])
-                            }
-                        })
-                    }
                 })
             }
         })
