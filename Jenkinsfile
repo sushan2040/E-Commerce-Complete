@@ -7,8 +7,13 @@ pipeline {
     }
     stages {
         stage('Prepare Workspace') {
-            steps {
-                cleanWs() // Clean the workspace before any operations
+            sh '''
+                    # Clean workspace and fix permissions
+                    cleanWs()
+                    # Ensure workspace is writable by Jenkins
+                    chown -R jenkins:jenkins . || true
+                    chmod -R u+w .
+                '''
             }
         }
         stage('Checkout SCM') {
