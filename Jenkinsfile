@@ -63,19 +63,7 @@ pipeline {
                 sh '''
                     docker build -t ecommerce-backend:latest ./E-Commerce
                     docker build -t ecommerce-frontend:latest ./ecommerce
-                '''
-            }
-        }
-        stage('Deploy') {
-            agent {
-                docker {
-                    image 'docker:27.1.1'
-                    reuseNode true
-                    args '-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=""'
-                }
-            }
-            steps {
-                sh '''
+
                     docker network create ecommerce-network || true
                     docker stop ecommerce-backend ecommerce-frontend || true
                     docker rm ecommerce-backend ecommerce-frontend || true
