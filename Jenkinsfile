@@ -6,9 +6,10 @@ pipeline {
         DB_PASSWORD = credentials('ecommerce-db-password')
     }
     stages {
-        stage('Prepare Workspace') {
+        stage('Checkout SCM') {
             steps {
-                  cleanWs()// Clean the workspace before any operations
+                 cleanWs()
+                git url: 'https://github.com/sushan2040/E-Commerce-Complete.git', branch: 'main'
             }
         }
         stage('Build Backend') {
