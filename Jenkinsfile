@@ -28,6 +28,7 @@ pipeline {
                 sh '''
                     cd E-Commerce
                     mvn clean install
+                    apt-get update && apt-get install -y docker.io
                     docker build -t ecommerce-backend:latest .
                 '''
             }
@@ -47,6 +48,7 @@ pipeline {
                     npm run build || true
                     if [ -d "./build" ]; then
                         echo "Build directory exists, building frontend image..."
+                        apt-get update && apt-get install -y docker.io
                         docker build -t ecommerce-frontend:latest .
                     else
                         echo "Error: Build directory not found!"
