@@ -37,13 +37,11 @@ pipeline {
                     // Frontend build in node image
                     docker.image('node:20-alpine').inside('-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=""') {
                         sh '''
-                            docker build -t ecommerce-backend:latest .
                             cd ecommerce
                             npm install --legacy-peer-deps
                             npm run build || true
                             if [ -d "./build" ]; then
                                 echo "Build directory exists, building frontend image..."
-                                docker build -t ecommerce-frontend:latest .
                             else
                                 echo "Error: Build directory not found!"
                                 exit 1
@@ -53,7 +51,29 @@ pipeline {
                 }
             }
         }
+        stage('Build Docker Images') {
+            agent {
+                docker {
+                    image 'docker:27.1.1'
+                    reuseNode true
+                    args '-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=""'
+                }
+            }
+            steps {
+                sh '''
+                    docker build -t ecommerce-backend:latest ./E-Commerce
+                    docker build -t ecommerce-frontend:latest ./ecommerce
+                '''
+            }
+        }
         stage('Deploy') {
+            agent {
+                docker {
+                    image 'docker:27.1.1'
+                    reuseNode true
+                    args '-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=""'
+                }
+            }
             steps {
                 sh '''
                     docker network create ecommerce-network || true
