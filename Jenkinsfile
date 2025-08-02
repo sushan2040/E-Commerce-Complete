@@ -18,7 +18,6 @@ pipeline {
                         # Verify root access
                         echo "$SUDO_PASSWORD" | sudo -S whoami | grep -q root || { echo "Failed to switch to root"; exit 1; }
                         # Clean workspace and fix permissions as root
-                        echo "$SUDO_PASSWORD" | sudo -S cleanWs
                         echo "$SUDO_PASSWORD" | sudo -S chown -R $(whoami):$(whoami) . || true
                         echo "$SUDO_PASSWORD" | sudo -S chmod -R u+w .
                     '''
