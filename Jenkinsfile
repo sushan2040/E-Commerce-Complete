@@ -122,22 +122,4 @@ pipeline {
             }
         }
     }
-    post {
-        always {
-            // Delete folders if build fails or completes
-            sh 'rm -rf E-Commerce ecommerce || true'
-            echo "Cleaned up E-Commerce and ecommerce folders."
-        }
-        success {
-            // Confirmation on success
-            echo "Build and deployment successful. Folders already cleaned."
-        }
-        failure {
-            // Log failure and rely on always block for cleanup
-            echo "Build failed. Folders cleaned as part of always block."
-            // Stop and remove containers on failure
-            sh 'docker stop ecommerce-backend ecommerce-frontend || true'
-            sh 'docker rm ecommerce-backend ecommerce-frontend || true'
-        }
-    }
 }
