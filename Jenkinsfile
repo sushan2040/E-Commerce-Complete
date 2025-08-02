@@ -5,9 +5,6 @@ pipeline {
         DB_USERNAME = credentials('ecommerce-db-username')
         DB_PASSWORD = credentials('ecommerce-db-password')
     }
-    triggers {
-        pollSCM('* * * * *') // Polls every minute (adjusted for your Jenkins version)
-    }
     stages {
         stage('Prepare Workspace') {
             steps {
