@@ -4,23 +4,20 @@ pipeline {
         DB_URL = credentials('ecommerce-db-url')
         DB_USERNAME = credentials('ecommerce-db-username')
         DB_PASSWORD = credentials('ecommerce-db-password')
-        PASSWORD=credentials('sudo-password')
     }
     stages {
         stage('Switch to Root and Prepare Workspace') {
             steps {
-                    sh '''
-                        # Ensure sudo is available
-                        if ! command -v sudo >/dev/null 2>&1; then
-                            echo "sudo not found, please ensure it is installed"
-                            exit 1
-                        fi
-                        # Verify root access
-                        echo "$SUDO_PASSWORD" | sudo -S whoami | grep -q root || { echo "Failed to switch to root"; exit 1; }
-                        # Clean workspace and fix permissions as root
-                        echo "$SUDO_PASSWORD" | sudo -S chown -R $(whoami):$(whoami) . || true
-                        echo "$SUDO_PASSWORD" | sudo -S chmod -R u+w .
-                    '''
+                sh '''
+                    if ! command -v sudo >/dev/null 2>&1; then
+                        echo "sudo not found, please ensure it is installed"
+                        exit 1
+                    fi
+                    sudo -n whoami | grep -q root || { echo "Failed to switch to root; ensure passwordless sudo is configured for Jenkins user"; exit 1; }
+                    sudo -n cleanWs
+                    sudo -n chown -R $(whoami):$(whoami) . || true
+                    sudo -n chmod -R u+w .
+                '''
             }
         }
         stage('Checkout SCM') {
@@ -29,32 +26,32 @@ pipeline {
             }
         }
         stage('Build') {
-            agent {
-                docker {
-                    image 'mycompany/build-tools:latest' // Custom image with Maven, Node.js, Docker
-                    reuseNode true
-                    args '-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=""'
-                }
-            }
             steps {
-                sh '''
-                    # Build Backend
-                    cd E-Commerce
-                    mvn clean install
-                    docker build -t ecommerce-backend:latest .
-
-                    # Build Frontend
-                    cd ../ecommerce
-                    npm install --legacy-peer-deps
-                    npm run build
-                    if [ -d "./build" ]; then
-                        echo "Build directory exists, building frontend image..."
-                        docker build -t ecommerce-frontend:latest .
-                    else
-                        echo "Error: Build directory not found!"
-                        exit 1
-                    fi
-                '''
+                script {
+                    // Backend build in maven image
+                    docker.image('maven:3.8.6-eclipse-temurin-17').inside('-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=""') {
+                        sh '''
+                            cd E-Commerce
+                            mvn clean install
+                            docker build -t ecommerce-backend:latest .
+                        '''
+                    }
+                    // Frontend build in node image
+                    docker.image('node:20-alpine').inside('-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=""') {
+                        sh '''
+                            cd ecommerce
+                            npm install --legacy-peer-deps
+                            npm run build
+                            if [ -d "./build" ]; then
+                                echo "Build directory exists, building frontend image..."
+                                docker build -t ecommerce-frontend:latest .
+                            else
+                                echo "Error: Build directory not found!"
+                                exit 1
+                            fi
+                        '''
+                    }
+                }
             }
         }
         stage('Deploy') {
