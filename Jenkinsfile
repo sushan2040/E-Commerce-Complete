@@ -65,6 +65,8 @@ pipeline {
                 docker build -t ecommerce-backend:latest ./E-Commerce
                     docker build -t ecommerce-frontend:latest ./ecommerce
                     docker network create ecommerce-network || true
+                    docker stop ecommerce-backend ecommerce-frontend || true
+                    docker rm ecommerce-backend ecommerce-frontend || true
                     docker run -d --name ecommerce-backend --network ecommerce-network -p 8081:8081 \
                         -e DB_URL="$DB_URL" \
                         -e DB_USERNAME="$DB_USERNAME" \
