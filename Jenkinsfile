@@ -106,5 +106,20 @@ pipeline {
                 // Deployment handled in Build stages; add more steps if needed
             }
         }
+        post {
+            always {
+                // Delete folders if build fails
+                sh 'rm -rf E-Commerce ecommerce || true'
+                echo "Cleaned up E-Commerce and ecommerce folders."
+            }
+            success {
+                // Additional cleanup or confirmation on success
+                echo "Build and deployment successful. Folders already cleaned."
+            }
+            failure {
+                // Ensure cleanup on failure
+                echo "Build failed. Folders cleaned as part of always block."
+            }
+        }
     }
 }
