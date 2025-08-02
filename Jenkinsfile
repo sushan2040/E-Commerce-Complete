@@ -4,9 +4,14 @@ pipeline {
         pollSCM('* * * * *') // Polls every minute (adjusted for your Jenkins version)
     }
     stages {
+        stage('Prepare Workspace') {
+            steps {
+                deleteDir() // Clean the workspace before any operations
+                sh 'mkdir -p E-Commerce/target/classes/META-INF' // Create necessary directories
+            }
+        }
         stage('Checkout SCM') {
             steps {
-                deleteDir() 
                 git url: 'https://github.com/sushan2040/E-Commerce-Complete.git', branch: 'main'
             }
         }
