@@ -65,14 +65,14 @@ pipeline {
                     docker build -t ecommerce-frontend:latest ./ecommerce
 
                     docker network create ecommerce-network || true
-                    docker stop ecommerce-backend ecommerce-frontend || true
-                    docker rm ecommerce-backend ecommerce-frontend || true
-                    docker run -d --name ecommerce-backend --network ecommerce-network -p 8081:8081 \
+                    docker stop ecommerce-backend:latest ecommerce-frontend:latest || true
+                    docker rm ecommerce-backend:latest ecommerce-frontend:latest || true
+                    docker run -d --name ecommerce-backend:latest --network ecommerce-network -p 8081:8081 \
                         -e DB_URL=$DB_URL \
                         -e DB_USERNAME=$DB_USERNAME \
                         -e DB_PASSWORD=$DB_PASSWORD \
                         ecommerce-backend:latest
-                    docker run -d --name ecommerce-frontend --network ecommerce-network -p 80:80 \
+                    docker run -d --name ecommerce-frontend:latest --network ecommerce-network -p 80:80 \
                         ecommerce-frontend:latest
                     sleep 10
                     if curl -s http://localhost:8081 > /dev/null; then
