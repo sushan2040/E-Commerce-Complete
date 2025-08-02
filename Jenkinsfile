@@ -9,12 +9,6 @@ pipeline {
                 git url: 'https://github.com/sushan2040/E-Commerce-Complete.git', branch: 'main'
             }
         }
-        stage('Prepare Workspace') {
-            steps {
-                deleteDir() // Clean the workspace to remove stale permissions
-                sh 'mkdir -p E-Commerce/target/classes/META-INF' // Create directory with Jenkins permissions
-            }
-        }
         stage('Build Backend') {
             agent {
                 docker {
