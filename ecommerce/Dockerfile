@@ -1,3 +1,3 @@
 FROM nginx:alpine
-COPY build/ /usr/share/nginx/html
+COPY build/ /var/www/html
 EXPOSE 80
