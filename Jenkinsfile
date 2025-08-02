@@ -106,17 +106,17 @@ pipeline {
     post {
             always {
                 // Delete folders if build fails
-                sh 'rm -rf E-Commerce ecommerce || true'
+                //sh 'rm -rf E-Commerce ecommerce || true'
                 echo "Cleaned up E-Commerce and ecommerce folders."
             }
             success {
                 // Additional cleanup or confirmation on success
-                 sh 'rm -rf E-Commerce ecommerce || true'
+                 //sh 'rm -rf E-Commerce ecommerce || true'
                 echo "Build and deployment successful. Folders already cleaned."
             }
             failure {
                 // Ensure cleanup on failure
-                 sh 'rm -rf E-Commerce ecommerce || true'
+                // sh 'rm -rf E-Commerce ecommerce || true'
                 echo "Build failed. Folders cleaned as part of always block."
             }
         }
