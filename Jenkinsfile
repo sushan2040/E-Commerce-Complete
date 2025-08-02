@@ -1,7 +1,7 @@
 pipeline {
     agent any
     triggers {
-        pollSCM('* * * * * *') // Polls every second (requires Jenkins 2.263.1 or later)
+        pollSCM('* * * * * ') // Polls every second (requires Jenkins 2.263.1 or later)
     }
     stages {
         stage('Checkout SCM') {
@@ -14,6 +14,7 @@ pipeline {
                 docker {
                     image 'maven:3.8.6-eclipse-temurin-17'
                     reuseNode true
+                      args "-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=''"
                 }
             }
             steps {
@@ -50,6 +51,7 @@ pipeline {
                 docker {
                     image 'node:20-alpine'
                     reuseNode true
+                      args "-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=''"
                 }
             }
             steps {
