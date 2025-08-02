@@ -6,8 +6,7 @@ pipeline {
     stages {
         stage('Prepare Workspace') {
             steps {
-                deleteDir() // Clean the workspace before any operations
-                sh 'mkdir -p E-Commerce/target/classes/META-INF' // Create necessary directories
+                  cleanWs()// Clean the workspace before any operations
             }
         }
         stage('Checkout SCM') {
