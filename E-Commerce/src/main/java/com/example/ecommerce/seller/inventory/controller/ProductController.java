@@ -114,17 +114,17 @@ public class ProductController {
         					photoDir.mkdirs();
         				}
         				// Save the file
-        				File photoFile = new File(photoDir, "productPhoto_"+i+".webp");
+        				File photoFile = new File(photoDir, productId+"productPhoto_"+i+".webp");
         				try {
         					file.transferTo(photoFile);
         					System.out.println("File uploaded successfully: " + photoFile.getAbsolutePath());
-        					WebPCompressor.compressWebP(photoFile, photoFile, 0.7f, photoUploadPath, "productPhoto_"+i+"");
+        					//WebPCompressor.compressWebP(photoFile, photoFile, 0.7f, photoUploadPath, "productPhoto_"+i+"");
 
         					ProductImages image=new ProductImages();
         					ProductMaster master=new ProductMaster();
         					master.setProductId(productId.intValue());
         					image.setProductMaster(master);
-        					image.setImagePath(environment.getProperty("product.virtual.images.path")+File.separator+"productPhoto_"+i+".webp");
+        					image.setImagePath(environment.getProperty("product.virtual.images.path")+File.separator+productId+"productPhoto_"+i+".webp");
         					image.setDeleted(Constants.NOT_DELETED);
         					image.setStatus(Constants.STATUS_ACTIVE);
         					
@@ -155,17 +155,17 @@ public class ProductController {
     					photoDir.mkdirs();
     				}
     				// Save the file
-    				File photoFile = new File(photoDir, "productPhoto_p.webp");
+    				File photoFile = new File(photoDir, productId+"productPhoto_p.webp");
     				try {
     					primaryImage.transferTo(photoFile);
     					System.out.println("File uploaded successfully: " + photoFile.getAbsolutePath());
-    					WebPCompressor.compressWebP(photoFile, photoFile, 0.7f, photoUploadPath, "productPhoto_p");
+    					//WebPCompressor.compressWebP(photoFile, photoFile, 0.7f, photoUploadPath, "productPhoto_p");
 
     					ProductImages image=new ProductImages();
     					ProductMaster master=new ProductMaster();
     					master.setProductId(productId.intValue());
     					image.setProductMaster(master);
-    					image.setImagePath(environment.getProperty("product.virtual.images.path")+File.separator+"productPhoto_p.webp");
+    					image.setImagePath(environment.getProperty("product.virtual.images.path")+File.separator+productId+"productPhoto_p.webp");
     					image.setDeleted(Constants.NOT_DELETED);
     					image.setStatus(Constants.STATUS_ACTIVE);
     					image.setIsPrimary(Constants.IMAGE_IS_PRIMARY);
