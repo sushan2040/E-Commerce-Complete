@@ -10,6 +10,7 @@ import com.example.ecommerce.configuration.beans.CommonDataBean;
 import com.example.ecommerce.seller.inventory.beans.ProductMasterBean;
 import com.example.ecommerce.seller.inventory.beans.ProductSpecificationValueBean;
 import com.example.ecommerce.seller.inventory.repo.ProductSpecificationDao;
+import com.example.ecommerce.configuration.masters.Users;
 
 import jakarta.transaction.Transactional;
 
@@ -26,8 +27,8 @@ public class ProductSpecificationServiceImpl implements ProductSpecificationServ
 	}
 
 	@Override
-	public List<ProductSpecificationValueBean> getAllProductSpecificationValueMasterPagination(int page, int per_page) {
-		return productSpecificationDao.getAllProductSpecificationValueMasterPagination(page,per_page);
+	public List<ProductSpecificationValueBean> getAllProductSpecificationValueMasterPagination(int page, int per_page,Users parsedUser) {
+		return productSpecificationDao.getAllProductSpecificationValueMasterPagination(page,per_page,parsedUser);
 	}
 
 	@Override

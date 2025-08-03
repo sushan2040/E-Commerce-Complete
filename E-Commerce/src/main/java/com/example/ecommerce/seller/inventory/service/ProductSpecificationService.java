@@ -11,7 +11,7 @@ public interface ProductSpecificationService {
 
 	Long saveProductSpecificationValueMaster(ProductSpecificationValueBean bean);
 
-	List<ProductSpecificationValueBean> getAllProductSpecificationValueMasterPagination(int page, int per_page);
+	List<ProductSpecificationValueBean> getAllProductSpecificationValueMasterPagination(int page, int per_page,Users parsedUser);
 
 	Long deleteProductSpecificationValueId(Integer productSpecificationValueId);
 

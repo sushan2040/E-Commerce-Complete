@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import com.example.ecommerce.configuration.masters.Users;
 
 import com.example.ecommerce.configuration.beans.AuthResponse;
 import com.example.ecommerce.configuration.beans.BrandBean;
@@ -59,9 +60,20 @@ public class ProductSpecificationValueController {
     @PostMapping("/pagination")
     public ResponseEntity<PaginationResponse<ProductSpecificationValueBean>> getAllProductSpecificationValueMasterPagination(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int per_page) {
+            @RequestParam(defaultValue = "10") int per_page,
+             @RequestHeader HttpHeaders headers,
+            HttpServletRequest request) {
+                 String authHeader = headers.getFirst(HttpHeaders.AUTHORIZATION);
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                AuthResponse authResponse = new AuthResponse();
+                authResponse.setMessage(Constants.FAIL_MESSAGE);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(authResponse);
+            }
+            String jwtToken = authHeader.substring(7); // Remove "Bearer " prefix
+            String user = jwtService.extractClaim(jwtToken, Claims::getSubject);
+            Users parsedUser = new ObjectMapper().readValue(user, Users.class);
             List<ProductSpecificationValueBean> productSpecificationList = null;
-            productSpecificationList = productSpecificationService.getAllProductSpecificationValueMasterPagination(page, per_page);
+            productSpecificationList = productSpecificationService.getAllProductSpecificationValueMasterPagination(page, per_page,parsedUser);
             int totalRows = !productSpecificationList.isEmpty() ? productSpecificationList.get(0).getTotalRecords() : 0;
 
             PaginationResponse<ProductSpecificationValueBean> response = new PaginationResponse<>();

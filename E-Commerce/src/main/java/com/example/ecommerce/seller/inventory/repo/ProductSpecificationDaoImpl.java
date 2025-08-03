@@ -22,6 +22,7 @@ import com.example.ecommerce.seller.inventory.beans.ProductMasterBean;
 import com.example.ecommerce.seller.inventory.beans.ProductSpecificationValueBean;
 import com.example.ecommerce.seller.inventory.masters.ProductMaster;
 import com.example.ecommerce.seller.inventory.masters.ProductSpecificationValueMaster;
+import com.example.ecommerce.configuration.masters.Users;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -57,7 +58,7 @@ public class ProductSpecificationDaoImpl implements ProductSpecificationDao{
 	}
 
 	@Override
-	public List<ProductSpecificationValueBean> getAllProductSpecificationValueMasterPagination(int page, int per_page) {
+	public List<ProductSpecificationValueBean> getAllProductSpecificationValueMasterPagination(int page, int per_page,Users parsedUser) {
 		 Session session = null;
 	        Transaction transaction = null;
 	        try {
@@ -74,6 +75,7 @@ public class ProductSpecificationDaoImpl implements ProductSpecificationDao{
 	            where = builder.and(where, builder.equal(root.get("status"), builder.parameter(String.class, "status")));
 	            where=builder.and(where,builder.equal(rootProduct.get("productId"),root.get("productId")));
 	            where=builder.and(where,builder.equal(rootSpecification.get("commonDataId"),root.get("specificationId")));
+				where=builder.and(where,builder.equal(rootSpecification.get('businessId'),builder.parameter('businessId')));
 	            brandQuery.where(where);
 	            brandQuery.select(builder.construct(ProductSpecificationValueBean.class,
 	            		root.get("productSpecificationValueMasterId"),
@@ -85,6 +87,7 @@ public class ProductSpecificationDaoImpl implements ProductSpecificationDao{
 	            Query<ProductSpecificationValueBean> brandquery = session.createQuery(brandQuery);
 	            brandquery.setParameter("deleted", Constants.NOT_DELETED);
 	            brandquery.setParameter("status", Constants.STATUS_ACTIVE);
+				brandquery.setParameter('businessId',parsedUser.getBusinessId());
 	            brandquery.setCacheable(true);
 	            if ((page - 1) >= 0)
 	                brandquery.setFirstResult((page - 1) * per_page); // Calculate the correct offset
@@ -95,7 +98,7 @@ public class ProductSpecificationDaoImpl implements ProductSpecificationDao{
 	            List<ProductSpecificationValueBean> brandBeanList = brandquery.getResultList();
 
 	            if (!brandBeanList.isEmpty()) {
-	                int totalRecords = getTotalBrandsCount(page, per_page);
+	                int totalRecords = getTotalBrandsCount(page, per_page,parsedUser);
 	                brandBeanList.get(0).setTotalRecords(totalRecords);
 	            }
 
@@ -114,7 +117,7 @@ public class ProductSpecificationDaoImpl implements ProductSpecificationDao{
 	        }
 	}
 
-	private int getTotalBrandsCount(int page, int per_page) {
+	private int getTotalBrandsCount(int page, int per_page,Users parsedUser) {
 		Session session = null;
         Transaction transaction = null;
         try {
@@ -131,11 +134,13 @@ public class ProductSpecificationDaoImpl implements ProductSpecificationDao{
             where = builder.and(where, builder.equal(root.get("status"), builder.parameter(String.class, "status")));
             where=builder.and(where,builder.equal(rootProduct.get("productId"),root.get("productId")));
             where=builder.and(where,builder.equal(rootSpecification.get("commonDataId"),root.get("specificationId")));
+			where=builder.and(where,builder.equal(rootSpecification.get('businessId'),builder.parameter('businessId')));
             brandQuery.where(where);
             brandQuery.select(builder.count(root));
             Query<Long> brandquery = session.createQuery(brandQuery);
             brandquery.setParameter("deleted", Constants.NOT_DELETED);
             brandquery.setParameter("status", Constants.STATUS_ACTIVE);
+			brandquery.setParameter('businessId',parsedUser.getBusinessId());
             brandquery.setCacheable(true);
             if ((page - 1) >= 0)
                 brandquery.setFirstResult((page - 1) * per_page); // Calculate the correct offset

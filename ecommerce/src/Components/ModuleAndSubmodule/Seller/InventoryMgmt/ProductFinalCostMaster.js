@@ -210,12 +210,11 @@ export default function ProductFinalCostMaster() {
                 });
 
                 formData.countryId.forEach(selected => {
-                    if (element.id === selected) {
-                        obj.countryName = element.value;
-                        console.log(specificationName);
-                        obj.specificationName = specificationName;;
-                        setData((prevData) => [...prevData, obj])
-                    }
+                    obj.countryId = selected;
+                    obj.countryName = selected.value;
+                    console.log(specificationName);
+                    obj.specificationName = specificationName;;
+                    setData((prevData) => [...prevData, obj])
                 })
             }
         })

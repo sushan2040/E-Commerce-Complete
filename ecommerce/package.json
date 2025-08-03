@@ -10,6 +10,7 @@
     "@mui/icons-material": "^6.4.2",
     "@mui/material": "^6.4.2",
     "@mui/styled-engine-sc": "^6.4.2",
+    "@popperjs/core": "^2.11.8",
     "@reduxjs/toolkit": "^2.5.0",
     "@remixicon/react": "^4.6.0",
     "axios": "^1.7.9",
