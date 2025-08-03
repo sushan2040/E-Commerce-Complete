@@ -1,15 +1,11 @@
 package com.example.ecommerce.seller.inventory.controller;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import java.util.concurrent.Executor;
 
+import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
@@ -29,18 +25,14 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.ecommerce.configuration.beans.PaginationResponse;
-import com.example.ecommerce.configuration.beans.SubModuleMasterBean;
 import com.example.ecommerce.configuration.config.JwtService;
-import com.example.ecommerce.configuration.config.WebPCompressor;
 import com.example.ecommerce.configuration.masters.Users;
+import com.example.ecommerce.configuration.service.FileUploadService;
 import com.example.ecommerce.constants.Constants;
 import com.example.ecommerce.seller.inventory.beans.ProductImagesBean;
 import com.example.ecommerce.seller.inventory.beans.ProductMasterBean;
-import com.example.ecommerce.seller.inventory.masters.ProductImages;
-import com.example.ecommerce.seller.inventory.masters.ProductMaster;
 import com.example.ecommerce.seller.inventory.service.ProductService;
 import com.example.ecommerce.utils.RequestUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.jsonwebtoken.Claims;
@@ -55,6 +47,8 @@ public class ProductController {
     
     @Autowired private JwtService jwtService;
     
+    @Autowired private FileUploadService fileUploadService;
+    
     @Autowired
     @Qualifier("taskExecutor")
     private Executor taskExecutor;
@@ -65,135 +59,62 @@ public class ProductController {
     @Autowired
     private RedisTemplate<String,Object> redisTemplate;
     
-    // Save product (Asynchronous)
     @PostMapping(value = "/save")
-    public ResponseEntity<Map<String, String>> saveProductMaster(HttpServletRequest request,
+    public ResponseEntity<Map<String, String>> saveProductMaster(
+            HttpServletRequest request,
             @RequestPart("productMasterBean") String productMasterBean,
-            @RequestPart(value="files",required = false) List<MultipartFile> files,
-            @RequestPart(value="primary",required = false) MultipartFile primaryImage,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files,
+            @RequestPart(value = "primary", required = false) MultipartFile primaryImage,
             @RequestHeader HttpHeaders headers) {
-        	String authHeader = headers.getFirst(HttpHeaders.AUTHORIZATION);
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(new HashMap());
-            }
-            String jwtToken = authHeader.substring(7); // Remove "Bearer " prefix
-            List<SubModuleMasterBean> subModuleList = null;
-            ObjectMapper mapper=new ObjectMapper();
-            ProductMasterBean bean = null;
-			try {
-				bean = mapper.readValue(productMasterBean,ProductMasterBean.class);
-			} catch (JsonProcessingException e) {
-				e.printStackTrace();
-			}
-            		bean.setIpAddress(RequestUtils.getClientIpAddress(request));
+
+        Map<String, String> response = new HashMap<>();
+
+        // Validate JWT token
+        String authHeader = headers.getFirst(HttpHeaders.AUTHORIZATION);
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            response.put("message", "Missing or invalid Authorization header");
+            response.put("status", "error");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        String jwtToken = authHeader.substring(7); // Remove "Bearer " prefix
+
+        try {
+            // Parse productMasterBean
+            ObjectMapper mapper = new ObjectMapper();
+            ProductMasterBean bean = mapper.readValue(productMasterBean, ProductMasterBean.class);
+
+            // Set IP and MAC address
+            bean.setIpAddress(RequestUtils.getClientIpAddress(request));
             bean.setMacId(RequestUtils.getMacAddress(RequestUtils.getClientIpAddress(request)));
-            try {
-                String user = jwtService.extractClaim(jwtToken, Claims::getSubject);
-                Users parsedUser = new ObjectMapper().readValue(user, Users.class);
-                bean.setBusinessId(parsedUser.getBusinessId());
-                Long productId = productService.saveProductMaster(bean);
-                //code to save uploaded product images
-                int i = 0;
-                if(files!=null) {
-                for (MultipartFile file : files) {
-                	
-                	if (file != null) {
-        				// saving file in the desired location
-        				LocalDateTime now = LocalDateTime.now();
-        				String year = String.valueOf(now.getYear());
-        				String month = String.format("%02d", now.getMonthValue()); // Ensure two-digit month
-        				// Construct the photo upload path
-        				String basePath = environment.getProperty("product.images.path");
-        				String randomPath = WebPCompressor.generateFixedRandomString(productId.toString(),
-        						Integer.parseInt("7"));
-        			 	String photoUploadPath = basePath+File.separator;
-        				// Create directories if they don't exist
-        				File photoDir = new File(photoUploadPath);
-        				if (!photoDir.exists()) {
-        					photoDir.mkdirs();
-        				}
-        				// Save the file
-        				File photoFile = new File(photoDir, productId+"productPhoto_"+i+".webp");
-        				try {
-        					file.transferTo(photoFile);
-        					System.out.println("File uploaded successfully: " + photoFile.getAbsolutePath());
-        					//WebPCompressor.compressWebP(photoFile, photoFile, 0.7f, photoUploadPath, "productPhoto_"+i+"");
 
-        					ProductImages image=new ProductImages();
-        					ProductMaster master=new ProductMaster();
-        					master.setProductId(productId.intValue());
-        					image.setProductMaster(master);
-        					image.setImagePath(environment.getProperty("product.virtual.images.path")+File.separator+productId+"productPhoto_"+i+".webp");
-        					image.setDeleted(Constants.NOT_DELETED);
-        					image.setStatus(Constants.STATUS_ACTIVE);
-        					
-        					productService.saveProductImage(image);
-        					
-        				} catch (IllegalStateException | IOException e) {
-        					e.printStackTrace();
-        				}
-                	}
-                	i++;
-                }
-                }
-                
-                if(primaryImage!=null) {
+            // Extract user from JWT
+            String user = jwtService.extractClaim(jwtToken, Claims::getSubject);
+            Users parsedUser = mapper.readValue(user, Users.class);
+            bean.setBusinessId(parsedUser.getBusinessId());
 
-    				// saving file in the desired location
-    				LocalDateTime now = LocalDateTime.now();
-    				String year = String.valueOf(now.getYear());
-    				String month = String.format("%02d", now.getMonthValue()); // Ensure two-digit month
-    				// Construct the photo upload path
-    				String basePath = environment.getProperty("product.images.path");
-    				String randomPath = WebPCompressor.generateFixedRandomString(productId.toString(),
-    						Integer.parseInt("7"));
-    				String photoUploadPath = basePath+File.separator;
-    				// Create directories if they don't exist
-    				File photoDir = new File(photoUploadPath);
-    				if (!photoDir.exists()) {
-    					photoDir.mkdirs();
-    				}
-    				// Save the file
-    				File photoFile = new File(photoDir, productId+"productPhoto_p.webp");
-    				try {
-    					primaryImage.transferTo(photoFile);
-    					System.out.println("File uploaded successfully: " + photoFile.getAbsolutePath());
-    					//WebPCompressor.compressWebP(photoFile, photoFile, 0.7f, photoUploadPath, "productPhoto_p");
-
-    					ProductImages image=new ProductImages();
-    					ProductMaster master=new ProductMaster();
-    					master.setProductId(productId.intValue());
-    					image.setProductMaster(master);
-    					image.setImagePath(environment.getProperty("product.virtual.images.path")+File.separator+productId+"productPhoto_p.webp");
-    					image.setDeleted(Constants.NOT_DELETED);
-    					image.setStatus(Constants.STATUS_ACTIVE);
-    					image.setIsPrimary(Constants.IMAGE_IS_PRIMARY);
-    					productService.saveProductImage(image);
-    					
-    				} catch (IllegalStateException | IOException e) {
-    					e.printStackTrace();
-    				}
-            	
-                }
-                
-
-                Map<String, String> response = new HashMap<>();
-                if (productId > 0) {
-                    response.put("message", Constants.SUCCESS_MESSAGE);
-                    response.put("status", "success");
-                } else {
-                    response.put("message", Constants.FAIL_MESSAGE);
-                    response.put("status", "fail");
-                }
-                return ResponseEntity.ok(response);
-            } catch (Exception e) {
-            	e.printStackTrace();
-                Map<String, String> errorResponse = new HashMap<>();
-                errorResponse.put("message", "Error saving product: " + e.getMessage());
-                errorResponse.put("status", "error");
-                return ResponseEntity.status(500).body(errorResponse);
+            // Save product master
+            Long productId = productService.saveProductMaster(bean);
+            if (productId <= 0) {
+                response.put("message", "Failed to save product master");
+                response.put("status", "fail");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
             }
+
+            // Save uploaded images
+            fileUploadService.saveProductImages(productId, files, primaryImage);
+
+            response.put("message", Constants.SUCCESS_MESSAGE);
+            response.put("status", "success");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            System.err.println("General error: " + e.getMessage());
+            e.printStackTrace();
+            response.put("message", "Error saving product: " + e.getMessage());
+            response.put("status", "error");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 
     // Fetch products with pagination (Asynchronous)
