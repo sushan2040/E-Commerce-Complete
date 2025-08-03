@@ -17,13 +17,13 @@ export default function Card({ productId, productName, productImages, productCos
                         <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel">
                             <div class="carousel-inner">
                                 <div class="carousel-item active img-container" data-bs-interval="10000">
-                                    {productImages[0] && <img src={CONSTANTS.BASE_URL + productImages[0].imagePath} class="d-block w-100" alt="..." />}
+                                    {productImages[0] && <img src={productImages[0].imagePath} class="d-block w-100" alt="..." />}
                                 </div>
                                 <div class="carousel-item img-container" data-bs-interval="2000">
-                                    {productImages[1] && <img src={CONSTANTS.BASE_URL + productImages[1].imagePath} class="d-block w-100" alt="..." />}
+                                    {productImages[1] && <img src={productImages[1].imagePath} class="d-block w-100" alt="..." />}
                                 </div>
                                 <div class="carousel-item img-container">
-                                    {productImages[2] && <img src={CONSTANTS.BASE_URL + productImages[2].imagePath} class="d-block w-100" alt="..." />}
+                                    {productImages[2] && <img src={productImages[2].imagePath} class="d-block w-100" alt="..." />}
                                 </div>
                             </div>
                             <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleInterval" data-bs-slide="prev">

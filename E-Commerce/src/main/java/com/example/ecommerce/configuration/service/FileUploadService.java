@@ -138,7 +138,7 @@ public class FileUploadService {
             ProductMaster master = new ProductMaster();
             master.setProductId(productId.intValue());
             image.setProductMaster(master);
-            String savedPath="https://"+bucketName+".s3."+Regions.AP_SOUTHEAST_1+".amazonaws.com/"+productId + fileName + ".webp";
+            String savedPath="https://"+bucketName+".s3."+Regions.AP_SOUTHEAST_1.getName()+".amazonaws.com/"+productId + fileName + ".webp";
             image.setImagePath(savedPath);
             image.setDeleted(Constants.NOT_DELETED);
             image.setStatus(Constants.STATUS_ACTIVE);
