@@ -4,6 +4,7 @@ import CommonScreen from "../../Structure/CommonScreen";
 import axios from "axios";
 import CONSTANTS from "../../utils/Constants";
 import { useEffect, useState } from "react";
+import RemoveCarItem from "./CardRemoveItem";
 
 export default function Cart() {
 
@@ -18,28 +19,11 @@ export default function Cart() {
             }
         })
             .then((result) => {
-                console.log("users added products are : " + result);
-                setProducts(result);
+                console.log("users added products are : " + JSON.stringify(result));
+                setProducts(result.data);
             })
     }
-    // function substractFromCart() {
-    //     axios.post(CONSTANTS.BASE_URL + "/customer/substract-product-from-cart", {
-    //         params: {
-    //             productFinalCostMasterId: urlSearchParams.get('productId'),
-    //             quantity: count
-    //         },
-    //         headers: {
-    //             "Authorization": "Bearer " + localStorage.getItem('authToken'),
-    //         }
-    //     }).then((result) => {
-    //         if (result.status == "sucess") {
-    //             toast.success(result.message);
-    //         } else {
-    //             toast.error(result.message);
-    //         }
-    //         fetchUsersCartCount();
-    //     })
-    // }
+
     useEffect(() => {
         fetchUsersAddedProducts();
     }, [])
@@ -52,7 +36,7 @@ export default function Cart() {
             </div>
             <div className="row">
                 {products.map((product) => (
-                    <Card specificationList={product.specificationList} currencySymbol={product.currencySymbol} productId={product.productFinalCostMasterId} productName={product.productName} productImages={product.productImages} productCost={product.cost} />
+                    <RemoveCarItem specificationList={product.specificationList} currencySymbol={product.currencySymbol} productId={product.productFinalCostMasterId} productName={product.productName} productImages={product.productImages} productCost={product.cost} />
                 ))}
             </div>
         </>

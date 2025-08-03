@@ -240,6 +240,7 @@ public class ProductFinalCostDaoImpl implements ProductFinalCostDao{
 		 List<ProductSpecificationValueBean> specificationValueBeanList=prodSpecQuery.getResultList();
 		 bean.setSpecificationList(specificationValueBeanList);
 		 }
+		 bean.setProductFinalCostMasterId(productId);
 		 return bean;
 	}
 }

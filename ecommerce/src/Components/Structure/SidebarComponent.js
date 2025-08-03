@@ -27,6 +27,7 @@ import { useAuth } from '../../features/AuthProvider ';
 import { AssistWalker, ExpandLess, ExpandMore } from '@mui/icons-material';
 import useCommonEffect from '../Session/useCommonEffect';
 import api from '../utils/axiosSetup';
+import axios from 'axios';
 
 const drawerWidth = 240;
 
@@ -240,9 +241,22 @@ export default function PersistentDrawerLeft() {
       mode: 'dark',
     },
   });
+  function fetchUsersCartCount() {
+    axios.get(CONSTANTS.BASE_URL + "/customer/fetch-users-cart-count", {
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem('authToken'),
+      }
+    })
+      .then((result) => {
+        console.log("user cart count is :" + JSON.stringify(result));
+        localStorage.setItem('cartItemNo', result.data);
+      })
+  }
+
   // Save theme preference in localStorage
   React.useEffect(() => {
     localStorage.setItem('theme', darkMode ? 'dark' : 'light');
+    fetchUsersCartCount();
   }, [darkMode]);
 
   return (

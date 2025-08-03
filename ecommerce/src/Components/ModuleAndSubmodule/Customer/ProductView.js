@@ -41,21 +41,9 @@ export default function ProductView() {
             } else {
                 toast.error(result.message);
             }
-            fetchUsersCartCount();
+
         })
     }
-
-    function fetchUsersCartCount() {
-        axios.get(CONSTANTS.BASE_URL + "/customer/fetch-users-cart-count", {
-            headers: {
-                "Authorization": "Bearer " + localStorage.getItem('authToken'),
-            }
-        })
-            .then((result) => {
-                console.log("user cart count is :" + JSON.stringify(result));
-            })
-    }
-
     function fetchProductDetails() {
         var urlSearchParams = new URLSearchParams(window.location.search);
         axios.get(CONSTANTS.BASE_URL + "/product-final-cost/fetch-final-product-by-id-contrywise", {
