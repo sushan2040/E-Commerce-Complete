@@ -53,6 +53,7 @@ export default function ProductView() {
                 setSpecificationList(resultData.specificationList);
                 if (resultData.productImages.length !== 0) {
                     setProducts(resultData.productImages);
+                    setSelectedImage(resultData.productImages[0].imagePath);
                 } else {
                     setProducts([{
                         productImagesId: 1, imagePath: p1
