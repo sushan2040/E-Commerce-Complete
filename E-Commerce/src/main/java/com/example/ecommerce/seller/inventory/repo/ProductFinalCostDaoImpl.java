@@ -158,8 +158,11 @@ public class ProductFinalCostDaoImpl implements ProductFinalCostDao{
 		Session session = sessionFactory.getCurrentSession();
 		
 		ProductFinalCostMaster finalCostMaster=session.get(ProductFinalCostMaster.class, productId);
+		List<Integer> specificationsList=new ArrayList<Integer>();
+		if(finalCostMaster.getProductSpecifications()!=null) {
 		String[] specificationArray=finalCostMaster.getProductSpecifications().split(",");
-		List<Integer> specificationsList=Arrays.stream(specificationArray).map(obj->Integer.parseInt(obj)).collect(Collectors.toList());
+		specificationsList=Arrays.stream(specificationArray).map(obj->Integer.parseInt(obj)).collect(Collectors.toList());
+		}
 		
 		CriteriaBuilder builder = session.getCriteriaBuilder();
 		CriteriaQuery<ProductMasterBean> prodQuery = builder.createQuery(ProductMasterBean.class);
@@ -214,7 +217,7 @@ public class ProductFinalCostDaoImpl implements ProductFinalCostDao{
 		 List<ProductImages> imagesList=prodImgQuery.getResultList();
 		 bean.setProductImages(imagesList);
 		 
-		 if(bean!=null) {
+		 if(bean!=null && !specificationsList.isEmpty()) {
 		 CriteriaBuilder builder2=session.getCriteriaBuilder();
 		 CriteriaQuery<ProductSpecificationValueBean> commonDataQuery=builder2.createQuery(ProductSpecificationValueBean.class);
 		 Root<ProductSpecificationValueMaster> rootSpecificationValue=commonDataQuery.from(ProductSpecificationValueMaster.class);
