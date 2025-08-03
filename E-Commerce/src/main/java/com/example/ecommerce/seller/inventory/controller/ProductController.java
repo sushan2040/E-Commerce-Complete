@@ -228,6 +228,7 @@ public class ProductController {
     @GetMapping(value = "/fetch-four-random-by-categories")
     public ResponseEntity<List<ProductMasterBean>> fetchFourRandomByCategories(@RequestParam("currencyCode")String currencyCode){
     	List<ProductMasterBean> productList=productService.fetchFourRandomByCategories(currencyCode);
+    	productList=productList.stream().distinct().toList();
     	return ResponseEntity.ok(productList);
     }
 }
