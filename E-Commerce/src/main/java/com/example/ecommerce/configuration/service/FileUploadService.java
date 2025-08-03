@@ -129,7 +129,7 @@ public class FileUploadService {
             }
 
             // Save the file
-            file.transferTo(photoFile);
+           // file.transferTo(photoFile);
             uploadFile(file,productId + fileName + ".webp");
             System.out.println("File uploaded successfully: " + photoFile.getAbsolutePath());
 
@@ -150,8 +150,6 @@ public class FileUploadService {
             System.out.println("Saved image metadata for: " + fileName);
 
         } catch (IllegalStateException e) {
-            throw new FileUploadException("Failed to save file " + fileName + ": " + e.getMessage(), e);
-        } catch (IOException e) {
             throw new FileUploadException("Failed to save file " + fileName + ": " + e.getMessage(), e);
         }
     }
