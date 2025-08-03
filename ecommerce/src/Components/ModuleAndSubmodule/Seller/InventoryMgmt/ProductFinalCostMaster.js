@@ -236,8 +236,12 @@ export default function ProductFinalCostMaster() {
     function saveProductFinalCostMaster(e) {
         e.preventDefault();
 
+        var tempArray = [];
+        for (let i = 0; i < data.length; i++) {
+            tempArray.push(JSON.parse(data[i]));
+        }
         // Ensure `data` is available and properly structured before sending
-        axios.post(CONSTANTS.BASE_URL + "/product-final-cost/save", data, {
+        axios.post(CONSTANTS.BASE_URL + "/product-final-cost/save", tempArray, {
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem('authToken'),
                 "Content-Type": "application/json"
