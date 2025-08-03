@@ -161,7 +161,7 @@ public class ProductFinalCostDaoImpl implements ProductFinalCostDao{
 		List<Integer> specificationsList=new ArrayList<Integer>();
 		if(finalCostMaster.getProductSpecifications()!=null) {
 		String[] specificationArray=finalCostMaster.getProductSpecifications().split(",");
-		specificationsList=Arrays.stream(specificationArray).map(obj->Integer.parseInt(obj)).collect(Collectors.toList());
+		specificationsList=Arrays.stream(specificationArray).filter(obj->!obj.isEmpty()).map(obj->Integer.parseInt(obj)).collect(Collectors.toList());
 		}
 		
 		CriteriaBuilder builder = session.getCriteriaBuilder();
