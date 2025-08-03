@@ -218,6 +218,11 @@ export default function ProductFinalCostMaster() {
                     obj.specificationName = specificationName;;
                     setData((prevData) => [...prevData, JSON.stringify(obj)])
                 })
+                setFormData({
+                    countryId: [],
+                    productName: '',
+                    cost: 0.0
+                })
             }
         })
 
