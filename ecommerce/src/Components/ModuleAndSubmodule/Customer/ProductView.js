@@ -7,6 +7,7 @@ import p4 from "../../../assets/images/No_Image_Available4.jpg";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import CONSTANTS from "../../utils/Constants";
+import { toast } from "react-toastify";
 
 export default function ProductView() {
 
@@ -28,8 +29,33 @@ export default function ProductView() {
         setCount(count);
     }
     function addToCart() {
-        console.log(count);
-        localStorage.setItem('cartItemNo', count);
+        axios.post(CONSTANTS.BASE_URL + "/customer/add-product-to-cart", {
+            params: {
+                productFinalCostMasterId: urlSearchParams.get('productId'),
+                quantity: count
+            },
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem('authToken'),
+            }
+        }).then((result) => {
+            if (result.status == "sucess") {
+                toast.success(result.message);
+            } else {
+                toast.error(result.message);
+            }
+            fetchUsersCartCount();
+        })
+    }
+
+    function fetchUsersCartCount() {
+        axios.get(CONSTANTS.BASE_URL + "/customer/fetch-users-cart-count", {
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem('authToken'),
+            }
+        })
+            .then((result) => {
+                console.log("user cart count is :" + result);
+            })
     }
 
     function fetchProductDetails() {
