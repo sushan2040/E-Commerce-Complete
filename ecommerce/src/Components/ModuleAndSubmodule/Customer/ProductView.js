@@ -136,9 +136,9 @@ export default function ProductView() {
                                         >
                                             <img
                                                 className="img-fluid"
-                                                src={CONSTANTS.BASE_URL + product.imagePath}
+                                                src={product.imagePath}
 
-                                                onClick={() => handleImageClick(CONSTANTS.BASE_URL + product.imagePath)} // Add click event
+                                                onClick={() => handleImageClick(product.imagePath)} // Add click event
                                                 style={{
                                                     width: "5rem",
                                                     height: "5rem",
