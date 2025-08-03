@@ -1,9 +1,12 @@
 package com.example.ecommerce.seller.inventory.repo;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -271,8 +274,23 @@ public class ProductDaoImpl implements ProductDao{
 		productQuery.setParameter("currencyCode", currencyCode);
 		productQuery.setMaxResults(4);
 
+		List<ProductMasterBean> beanList=productQuery.getResultList();
+		Map<Integer,ProductMasterBean> mapOfProducts=new HashMap<Integer, ProductMasterBean>();
+		for(ProductMasterBean bean:beanList) {
+			if(mapOfProducts.get(bean.getProductId())!=null) {
+				ProductMasterBean newBean=mapOfProducts.get(bean.getProductId());
+				for(ProductImages newImages:bean.getProductImages()) {
+					if(newBean.getProductImages().indexOf(newImages)==-1) {
+						newBean.getProductImages().add(newImages);
+					}
+				}
+				mapOfProducts.put(newBean.getProductId(), newBean);
+			}else {
+				mapOfProducts.put(bean.getProductId(), bean);
+			}
+		}
 		// Fetch the result list
-		return productQuery.getResultList();
+		return mapOfProducts.entrySet().stream().map(map->map.getValue()).collect(Collectors.toList());
 
 	}
 
