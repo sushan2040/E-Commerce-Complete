@@ -239,9 +239,7 @@ public class ProductFinalCostDaoImpl implements ProductFinalCostDao{
 		 prodSpecQuery.setParameter("status",Constants.STATUS_ACTIVE);
 		 List<ProductSpecificationValueBean> specificationValueBeanList=prodSpecQuery.getResultList();
 		 bean.setSpecificationList(specificationValueBeanList);
-		 return bean;
-		 }else {
-			 return new ProductMasterBean();
 		 }
+		 return bean;
 	}
 }
