@@ -165,7 +165,7 @@ public class ProductController {
     					ProductMaster master=new ProductMaster();
     					master.setProductId(productId.intValue());
     					image.setProductMaster(master);
-    					image.setImagePath(environment.getProperty("product.virtual.images.path")+randomPath+File.separator+"productPhoto_p.webp");
+    					image.setImagePath(environment.getProperty("product.virtual.images.path")+File.separator+randomPath+File.separator+"productPhoto_p.webp");
     					image.setDeleted(Constants.NOT_DELETED);
     					image.setStatus(Constants.STATUS_ACTIVE);
     					image.setIsPrimary(Constants.IMAGE_IS_PRIMARY);

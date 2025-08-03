@@ -1,11 +1,16 @@
 package com.example.ecommerce.configuration.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfigMVC implements WebMvcConfigurer  {
+	
+	@Autowired
+	Environment environment;
 
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -15,7 +20,7 @@ public class WebConfigMVC implements WebMvcConfigurer  {
 	            .setCachePeriod(0);  // Optional: Disable caching for development (set to a higher value for production)
 	    
 	    registry.addResourceHandler("/product/images/**")
-	    .addResourceLocations("file:///home/sweet-kevin/IdeaProjects/E-Commerce/ecommerce/ecommerce/PRODUCT_IMAGES/")
+	    .addResourceLocations(environment.getProperty("product.images.path"))
 	    .setCachePeriod(0);
 	}
 }
