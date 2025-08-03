@@ -107,7 +107,7 @@ public class ProductController {
         				String basePath = environment.getProperty("product.images.path");
         				String randomPath = WebPCompressor.generateFixedRandomString(productId.toString(),
         						Integer.parseInt("7"));
-        			 	String photoUploadPath = Paths.get(basePath,randomPath).toString();
+        			 	String photoUploadPath = basePath+File.separator+randomPath;
         				// Create directories if they don't exist
         				File photoDir = new File(photoUploadPath);
         				if (!photoDir.exists()) {
@@ -124,7 +124,7 @@ public class ProductController {
         					ProductMaster master=new ProductMaster();
         					master.setProductId(productId.intValue());
         					image.setProductMaster(master);
-        					image.setImagePath(environment.getProperty("product.virtual.images.path")+randomPath+File.separator+"productPhoto_"+i+".webp");
+        					image.setImagePath(environment.getProperty("product.virtual.images.path")+File.separator+randomPath+File.separator+"productPhoto_"+i+".webp");
         					image.setDeleted(Constants.NOT_DELETED);
         					image.setStatus(Constants.STATUS_ACTIVE);
         					
@@ -148,7 +148,7 @@ public class ProductController {
     				String basePath = environment.getProperty("product.images.path");
     				String randomPath = WebPCompressor.generateFixedRandomString(productId.toString(),
     						Integer.parseInt("7"));
-    				String photoUploadPath = Paths.get(basePath, randomPath).toString();
+    				String photoUploadPath = basePath+File.separator+randomPath;
     				// Create directories if they don't exist
     				File photoDir = new File(photoUploadPath);
     				if (!photoDir.exists()) {
