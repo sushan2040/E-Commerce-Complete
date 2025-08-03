@@ -100,13 +100,13 @@ public class UserProductRepoImpl implements UserProductRepo{
 		int count=0;
 		if(userProductCart!=null) {
 			if(quantity<=0) {
-				String sql=" delete from user_product_cart where product_final_cost_master_id=:productFinalCostMasterId and user_id=:userId";
+				String sql=" delete from ecommerce.user_product_cart where product_final_cost_master_id=:productFinalCostMasterId and user_id=:userId";
 				NativeQuery nativeQuery=session.createNativeQuery(sql);
 				nativeQuery.setParameter("productFinalCostMasterId",productFinalCostMasterId);
 				nativeQuery.setParameter("userId",parsedUser.getUserId());
 				count=nativeQuery.executeUpdate();
 			}else {
-				String sql=" update user_product_cart set quantity=:quantity where product_final_cost_master_id=:productFinalCostMasterId and user_id=:userId";
+				String sql=" update ecommerce.user_product_cart set quantity=:quantity where product_final_cost_master_id=:productFinalCostMasterId and user_id=:userId";
 				NativeQuery nativeQuery=session.createNativeQuery(sql);
 				nativeQuery.setParameter("productFinalCostMasterId",productFinalCostMasterId);
 				nativeQuery.setParameter("quantity",quantity);
