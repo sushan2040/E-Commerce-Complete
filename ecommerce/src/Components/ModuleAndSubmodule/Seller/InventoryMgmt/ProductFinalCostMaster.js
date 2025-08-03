@@ -214,7 +214,7 @@ export default function ProductFinalCostMaster() {
                     obj.countryName = selected.value;
                     console.log(specificationName);
                     obj.specificationName = specificationName;;
-                    setData((prevData) => [...prevData, obj])
+                    setData((prevData) => [...prevData, JSON.stringify(obj)])
                 })
             }
         })
