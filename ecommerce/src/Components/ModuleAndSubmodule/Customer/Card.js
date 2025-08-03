@@ -16,20 +16,33 @@ export default function Card({ productId, productName, productImages, productCos
                     <div className="carousel-wrapper">
                         <div id="carouselExampleInterval" className="carousel slide" data-bs-ride="carousel">
                             <div className="carousel-inner">
-                                <div
-                                    className="carousel-item active img-container"
-                                    data-bs-interval="10000"
-                                    style={{ backgroundImage: `url(${productImages[0]?.imagePath})` }}
-                                ></div>
-                                <div
-                                    className="carousel-item img-container"
-                                    data-bs-interval="2000"
-                                    style={{ backgroundImage: `url(${productImages[1]?.imagePath})` }}
-                                ></div>
-                                <div
-                                    className="carousel-item img-container"
-                                    style={{ backgroundImage: `url(${productImages[2]?.imagePath})` }}
-                                ></div>
+                                <div className="carousel-item active img-container" data-bs-interval="10000">
+                                    {productImages[0] && (
+                                        <img
+                                            src={productImages[0].imagePath}
+                                            className="d-block"
+                                            alt={`Product image ${productImages[0].isPrimary ? 'primary' : '1'}`}
+                                        />
+                                    )}
+                                </div>
+                                <div className="carousel-item img-container" data-bs-interval="2000">
+                                    {productImages[1] && (
+                                        <img
+                                            src={productImages[1].imagePath}
+                                            className="d-block"
+                                            alt={`Product image ${productImages[1].isPrimary ? 'primary' : '2'}`}
+                                        />
+                                    )}
+                                </div>
+                                <div className="carousel-item img-container">
+                                    {productImages[2] && (
+                                        <img
+                                            src={productImages[2].imagePath}
+                                            className="d-block"
+                                            alt={`Product image ${productImages[2].isPrimary ? 'primary' : '3'}`}
+                                        />
+                                    )}
+                                </div>
                             </div>
                             <button
                                 className="carousel-control-prev"
