@@ -5,6 +5,9 @@ pipeline {
         DB_USERNAME = credentials('ecommerce-db-username')
         DB_PASSWORD = credentials('ecommerce-db-password')
         REACT_APP_API_URL=credentials('ecommerce-api-url')
+        AWS_S3_BUCKET_NAME=credentials('aws.s3.bucketName')
+        AWS_S3_ACCESS_KEY=credentials('aws.s3.accessKey')
+        AWS_S3_SECRET_ACCESS_KEY=credentials('aws.s3.secretKey')
     }
     stages {
         stage('Switch to Root and Prepare Workspace') {
@@ -71,6 +74,9 @@ pipeline {
                         -e DB_URL="$DB_URL" \
                         -e DB_USERNAME="$DB_USERNAME" \
                         -e DB_PASSWORD="$DB_PASSWORD" \
+                        -e AWS_S3_BUCKET_NAME="$AWS_S3_BUCKET_NAME" \
+                        -e AWS_S3_ACCESS_KEY="$AWS_S3_ACCESS_KEY" \
+                        -e AWS_S3_SECRET_ACCESS_KEY="$AWS_S3_SECRET_ACCESS_KEY" \
                         ecommerce-backend:latest
                     docker run -d --name ecommerce-frontend --network ecommerce-network -p 80:80 \
                         ecommerce-frontend:latest
