@@ -77,7 +77,7 @@ export default function HomePage() {
                                         <div className="row">
                                             {productCategory.products.map((product) => (
 
-                                                <Card specificationList={product.specificationList} currencySymbol={product.currencySymbol} productId={product.productId} productName={product.productName} productImages={product.productImages} productCost={product.cost} />
+                                                <Card specificationList={product.specificationList} currencySymbol={product.currencySymbol} productId={product.productFinalCostMasterId} productName={product.productName} productImages={product.productImages} productCost={product.cost} />
 
                                             ))}
                                         </div>

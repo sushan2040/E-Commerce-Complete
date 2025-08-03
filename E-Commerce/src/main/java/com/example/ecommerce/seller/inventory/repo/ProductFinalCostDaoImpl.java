@@ -192,7 +192,7 @@ public class ProductFinalCostDaoImpl implements ProductFinalCostDao{
 		Query<ProductMasterBean> productQuery = session.createQuery(prodQuery);
 		productQuery.setParameter("deleted", Constants.NOT_DELETED);
 		productQuery.setParameter("status", Constants.STATUS_ACTIVE);
-		productQuery.setParameter("productId", productId);
+		productQuery.setParameter("productId", finalCostMaster.getProductId());
 		productQuery.setParameter("currencyCode", currencyCode);
 		productQuery.setMaxResults(1);
 
@@ -210,7 +210,7 @@ public class ProductFinalCostDaoImpl implements ProductFinalCostDao{
 		 Query<ProductImages> prodImgQuery=session.createQuery(productImagesQuery);
 		 prodImgQuery.setParameter("deleted",Constants.NOT_DELETED);
 		 prodImgQuery.setParameter("status",Constants.STATUS_ACTIVE);
-		 prodImgQuery.setParameter("productId",productId);
+		 prodImgQuery.setParameter("productId",finalCostMaster.getProductId());
 		 List<ProductImages> imagesList=prodImgQuery.getResultList();
 		 bean.setProductImages(imagesList);
 		 
