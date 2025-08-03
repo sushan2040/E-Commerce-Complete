@@ -26,6 +26,8 @@ import com.example.ecommerce.configuration.beans.CommonDataBean;
 import com.example.ecommerce.configuration.beans.PaginationResponse;
 import com.example.ecommerce.configuration.config.RedisKey;
 import com.example.ecommerce.constants.Constants;
+import org.springframework.http.HttpHeaders;
+import jakarta.servlet.http.HttpServletRequest;
 import com.example.ecommerce.seller.inventory.beans.ProductMasterBean;
 import com.example.ecommerce.seller.inventory.beans.ProductSpecificationValueBean;
 import com.example.ecommerce.seller.inventory.service.ProductSpecificationService;
