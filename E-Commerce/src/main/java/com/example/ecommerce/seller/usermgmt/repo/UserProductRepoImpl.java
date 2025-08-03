@@ -72,6 +72,7 @@ public class UserProductRepoImpl implements UserProductRepo{
 		Root<UserProductCart> root=countQuery.from(UserProductCart.class);
 		Predicate where=cb.equal(root.get("userId"),cb.parameter(Integer.class,"userId"));
 		countQuery.where(where);
+		countQuery.select(cb.count(root.get("userProductCartId")));
 		Query<Long> countquery=session.createQuery(countQuery);
 		countquery.setParameter("userId",parsedUser.getUserId());
 		Long count=countquery.uniqueResult();

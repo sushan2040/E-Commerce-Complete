@@ -22,24 +22,24 @@ export default function Cart() {
                 setProducts(result);
             })
     }
-    function substractFromCart() {
-        axios.post(CONSTANTS.BASE_URL + "/customer/substract-product-from-cart", {
-            params: {
-                productFinalCostMasterId: urlSearchParams.get('productId'),
-                quantity: count
-            },
-            headers: {
-                "Authorization": "Bearer " + localStorage.getItem('authToken'),
-            }
-        }).then((result) => {
-            if (result.status == "sucess") {
-                toast.success(result.message);
-            } else {
-                toast.error(result.message);
-            }
-            fetchUsersCartCount();
-        })
-    }
+    // function substractFromCart() {
+    //     axios.post(CONSTANTS.BASE_URL + "/customer/substract-product-from-cart", {
+    //         params: {
+    //             productFinalCostMasterId: urlSearchParams.get('productId'),
+    //             quantity: count
+    //         },
+    //         headers: {
+    //             "Authorization": "Bearer " + localStorage.getItem('authToken'),
+    //         }
+    //     }).then((result) => {
+    //         if (result.status == "sucess") {
+    //             toast.success(result.message);
+    //         } else {
+    //             toast.error(result.message);
+    //         }
+    //         fetchUsersCartCount();
+    //     })
+    // }
     useEffect(() => {
         fetchUsersAddedProducts();
     }, [])

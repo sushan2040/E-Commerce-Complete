@@ -29,13 +29,11 @@ export default function ProductView() {
         setCount(count);
     }
     function addToCart() {
-        axios.post(CONSTANTS.BASE_URL + "/customer/add-product-to-cart", {
-            params: {
-                productFinalCostMasterId: urlSearchParams.get('productId'),
-                quantity: count
-            },
+        var urlSearchParams = new URLSearchParams(window.location.search);
+        axios.post(CONSTANTS.BASE_URL + "/customer/add-product-to-cart?productFinalCostMasterId=" + parseInt(urlSearchParams.get('productId')) + "&quantity=" + count, {}, {
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem('authToken'),
+                "Content-Type": "application/json"
             }
         }).then((result) => {
             if (result.status == "sucess") {
@@ -54,7 +52,7 @@ export default function ProductView() {
             }
         })
             .then((result) => {
-                console.log("user cart count is :" + result);
+                console.log("user cart count is :" + JSON.stringify(result));
             })
     }
 

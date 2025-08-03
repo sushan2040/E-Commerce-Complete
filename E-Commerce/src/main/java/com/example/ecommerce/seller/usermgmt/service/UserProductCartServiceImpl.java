@@ -9,6 +9,8 @@ import com.example.ecommerce.configuration.masters.Users;
 import com.example.ecommerce.seller.inventory.beans.ProductMasterBean;
 import com.example.ecommerce.seller.usermgmt.repo.UserProductRepo;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class UserProductCartServiceImpl implements UserProductCartService {
 
@@ -16,6 +18,7 @@ public class UserProductCartServiceImpl implements UserProductCartService {
 	UserProductRepo userProductRepo;
 	
 	@Override
+	@Transactional
 	public Integer addProductToCart(Integer productFinalCostMasterId, Integer quantity,Users users) {
 		return userProductRepo.addProductToCart(productFinalCostMasterId,quantity,users);
 	}
@@ -26,6 +29,7 @@ public class UserProductCartServiceImpl implements UserProductCartService {
 	}
 
 	@Override
+	@Transactional
 	public Integer substractProductFromCart(Users parsedUser, Integer productFinalCostMasterId, Integer quantity) {
 		return userProductRepo.substractProductFromCart(parsedUser,productFinalCostMasterId,quantity);
 	}
