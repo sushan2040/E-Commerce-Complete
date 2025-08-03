@@ -6,6 +6,7 @@ import java.util.Map;
 import com.example.ecommerce.configuration.beans.CommonDataBean;
 import com.example.ecommerce.seller.inventory.beans.ProductMasterBean;
 import com.example.ecommerce.seller.inventory.beans.ProductSpecificationValueBean;
+import com.example.ecommerce.configuration.masters.Users;
 
 public interface ProductSpecificationService {
 
