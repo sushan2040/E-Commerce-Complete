@@ -132,6 +132,8 @@ export default function ProductFinalCostMaster() {
     let finalIndex = 0;
     function addProductFinalCostMaster(e) {
         e.preventDefault();
+        var tempArray = [];
+        setFinalResult(tempArray);
         console.log(selectedValues);
         console.log(producthiddenId);
         console.log(formData.countryId);
