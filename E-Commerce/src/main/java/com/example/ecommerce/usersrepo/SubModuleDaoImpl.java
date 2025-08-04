@@ -148,8 +148,8 @@ public class SubModuleDaoImpl implements SubModuleDao {
             );
 
             Predicate where = builder.equal(root.get("deleted"), builder.parameter(String.class, "deleted"));
-            where = builder.and(where, builder.equal(root.get("status"), builder.parameter(String.class, "status")));
-            //where = builder.and(where, builder.equal(root.get("menuTypeId"), rootMenuType.get("menuTypeId")));
+           // where = builder.and(where, builder.equal(root.get("status"), builder.parameter(String.class, "status")));
+           where = builder.and(where, builder.equal(root.get("menuTypeId"), rootMenuType.get("menuTypeId")));
             subModuleMasterQuery.where(where);
 
             Query<Object[]> subModuleQuery = session.createQuery(subModuleMasterQuery);
@@ -217,8 +217,8 @@ public class SubModuleDaoImpl implements SubModuleDao {
             subModuleMasterQuery.select(builder.count(root));
 
             Predicate where = builder.equal(root.get("deleted"), builder.parameter(String.class, "deleted"));
-            where = builder.and(where, builder.equal(root.get("status"), builder.parameter(String.class, "status")));
-           // where = builder.and(where, builder.equal(root.get("menuTypeId"), rootMenuType.get("menuTypeId")));
+           // where = builder.and(where, builder.equal(root.get("status"), builder.parameter(String.class, "status")));
+            where = builder.and(where, builder.equal(root.get("menuTypeId"), rootMenuType.get("menuTypeId")));
             subModuleMasterQuery.where(where);
 
             Query<Long> subModuleQuery = session.createQuery(subModuleMasterQuery);
