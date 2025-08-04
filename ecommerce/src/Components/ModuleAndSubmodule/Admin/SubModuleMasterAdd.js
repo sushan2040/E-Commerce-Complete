@@ -117,15 +117,16 @@ export default function SubModuleMasterAdd() {
             var resultData = result.data;
             if (resultData.status == "Y") {
                 document.getElementById("status").checked = true;
+                formData.status = "Y";
             } else {
                 document.getElementById("status").checked = false;
+                formData.status = "N";
             }
             setFormData({
                 subModuleId: resultData.subModuleId,
                 subModuleName: resultData.subModuleName,
                 menuTypeId: resultData.menuTypeId,
                 parentId: resultData.parentId,
-                status: resultData.status,
                 requestMapping: resultData.requestMapping,
                 icon: resultData.icon
             });
