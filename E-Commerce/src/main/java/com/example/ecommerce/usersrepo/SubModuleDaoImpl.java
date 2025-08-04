@@ -149,12 +149,12 @@ public class SubModuleDaoImpl implements SubModuleDao {
 
             Predicate where = builder.equal(root.get("deleted"), builder.parameter(String.class, "deleted"));
             where = builder.and(where, builder.equal(root.get("status"), builder.parameter(String.class, "status")));
-            where = builder.and(where, builder.equal(root.get("menuTypeId"), rootMenuType.get("menuTypeId")));
+            //where = builder.and(where, builder.equal(root.get("menuTypeId"), rootMenuType.get("menuTypeId")));
             subModuleMasterQuery.where(where);
 
             Query<Object[]> subModuleQuery = session.createQuery(subModuleMasterQuery);
             subModuleQuery.setParameter("deleted", Constants.NOT_DELETED);
-            subModuleQuery.setParameter("status", Constants.STATUS_ACTIVE);
+            //subModuleQuery.setParameter("status", Constants.STATUS_ACTIVE);
             subModuleQuery.setCacheable(true);
             subModuleQuery.setCacheRegion("subModuleMasterCache");
             if ((page - 1) >= 0)
@@ -218,12 +218,12 @@ public class SubModuleDaoImpl implements SubModuleDao {
 
             Predicate where = builder.equal(root.get("deleted"), builder.parameter(String.class, "deleted"));
             where = builder.and(where, builder.equal(root.get("status"), builder.parameter(String.class, "status")));
-            where = builder.and(where, builder.equal(root.get("menuTypeId"), rootMenuType.get("menuTypeId")));
+           // where = builder.and(where, builder.equal(root.get("menuTypeId"), rootMenuType.get("menuTypeId")));
             subModuleMasterQuery.where(where);
 
             Query<Long> subModuleQuery = session.createQuery(subModuleMasterQuery);
             subModuleQuery.setParameter("deleted", Constants.NOT_DELETED);
-            subModuleQuery.setParameter("status", Constants.STATUS_ACTIVE);
+           // subModuleQuery.setParameter("status", Constants.STATUS_ACTIVE);
 
             Long subModuleCount = subModuleQuery.uniqueResult();
             transaction.commit(); // Commit the transaction
