@@ -115,6 +115,11 @@ export default function SubModuleMasterAdd() {
         ).then((result) => {
             console.log(result);
             var resultData = result.data;
+            if (resultData.status == "Y") {
+                document.getElementById("status").checked = true;
+            } else {
+                document.getElementById("status").checked = false;
+            }
             setFormData({
                 subModuleId: resultData.subModuleId,
                 subModuleName: resultData.subModuleName,

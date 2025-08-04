@@ -48,7 +48,7 @@ public class SubModuleController {
     public ResponseEntity<Map<String, String>> saveSubModule(
             @RequestBody SubModuleMasterBean bean, HttpServletRequest request) {
             bean.setDeleted(Constants.NOT_DELETED);
-            bean.setStatus(Constants.STATUS_ACTIVE);
+            //bean.setStatus(Constants.STATUS_ACTIVE);
             bean.setIpAddress(RequestUtils.getClientIpAddress(request));
             bean.setMacId(RequestUtils.getMacAddress(bean.getIpAddress()));
             Integer count = subModuleService.saveSubModule(bean);
