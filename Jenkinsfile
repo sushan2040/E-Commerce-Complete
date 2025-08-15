@@ -56,50 +56,50 @@ pipeline {
             }
         }
         stage('Build Docker Images') {
-            agent {
-                docker {
-                    image 'docker:27.1.1'
-                    reuseNode true
-                    args '-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=""'
-                }
-            }
-            steps {
-                sh '''
-                docker build -t ecommerce-backend:latest ./E-Commerce
-                    docker build -t ecommerce-frontend:latest ./ecommerce
-                    docker network create ecommerce-network || true
-                    docker stop ecommerce-backend ecommerce-frontend || true
-                    docker rm ecommerce-backend ecommerce-frontend || true
-                    docker run -d --name ecommerce-backend --network ecommerce-network -p 8081:8081 \
-                        -e DB_URL="$DB_URL" \
-                        -e DB_USERNAME="$DB_USERNAME" \
-                        -e DB_PASSWORD="$DB_PASSWORD" \
-                        -e AWS_S3_BUCKET_NAME="$AWS_S3_BUCKET_NAME" \
-                        -e AWS_S3_ACCESS_KEY="$AWS_S3_ACCESS_KEY" \
-                        -e AWS_S3_SECRET_ACCESS_KEY="$AWS_S3_SECRET_ACCESS_KEY" \
-                        ecommerce-backend:latest
-                    docker run -d --name ecommerce-frontend --network ecommerce-network -p 80:80 \
-                        ecommerce-frontend:latest
-                    sleep 10
-                     # Check backend deployment
-                    if [ "$(docker inspect --format '{{.State.Running}}' ecommerce-backend)" = "true" ] && \
-                       docker inspect --format '{{.NetworkSettings.Ports}}' ecommerce-backend | grep -q "8081"; then
-                        echo "Backend deployment successful!"
-                    else
-                        echo "Backend failed to start or port 8081 not mapped"
-                        exit 1
-                    fi
-                    # Check frontend deployment
-                    if [ "$(docker inspect --format '{{.State.Running}}' ecommerce-frontend)" = "true" ] && \
-                       docker inspect --format '{{.NetworkSettings.Ports}}' ecommerce-frontend | grep -q "80"; then
-                        echo "Frontend deployment successful!"
-                    else
-                        echo "Frontend failed to start or port 80 not mapped"
-                        exit 1
-                    fi
-                '''
-            }
+    agent {
+        docker {
+            image 'docker:27.1.1'
+            reuseNode true
+            args '-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=""'
         }
+    }
+    steps {
+        sh '''
+            docker build -t ecommerce-backend:latest ./E-Commerce
+            docker build -t ecommerce-frontend:latest --build-arg REACT_APP_API_URL="$REACT_APP_API_URL" ./ecommerce
+            docker network create ecommerce-network || true
+            docker stop ecommerce-backend ecommerce-frontend || true
+            docker rm ecommerce-backend ecommerce-frontend || true
+            docker run -d --name ecommerce-backend --network ecommerce-network -p 8081:8081 \
+                -e DB_URL="$DB_URL" \
+                -e DB_USERNAME="$DB_USERNAME" \
+                -e DB_PASSWORD="$DB_PASSWORD" \
+                -e AWS_S3_BUCKET_NAME="$AWS_S3_BUCKET_NAME" \
+                -e AWS_S3_ACCESS_KEY="$AWS_S3_ACCESS_KEY" \
+                -e AWS_S3_SECRET_ACCESS_KEY="$AWS_S3_SECRET_ACCESS_KEY" \
+                ecommerce-backend:latest
+            docker run -d --name ecommerce-frontend --network ecommerce-network -p 3000:3000 \
+                ecommerce-frontend:latest
+            sleep 10
+            # Check backend deployment
+            if [ "$(docker inspect --format '{{.State.Running}}' ecommerce-backend)" = "true" ] && \
+               docker inspect --format '{{.NetworkSettings.Ports}}' ecommerce-backend | grep -q "8081"; then
+                echo "Backend deployment successful!"
+            else
+                echo "Backend failed to start or port 8081 not mapped"
+                exit 1
+            fi
+            # Check frontend deployment
+            if [ "$(docker inspect --format '{{.State.Running}}' ecommerce-frontend)" = "true" ] && \
+               docker inspect --format '{{.NetworkSettings.Ports}}' ecommerce-frontend | grep -q "3000"; then
+                echo "Frontend deployment successful!"
+            else
+                echo "Frontend failed to start or port 3000 not mapped"
+                exit 1
+            fi
+        '''
+    }
+}
     }
     post {
         always {
