@@ -115,6 +115,8 @@ public static final org.slf4j.Logger logger = LoggerFactory.getLogger(EcommerceA
 		            "http://localhost:3000",
 					"http://31.97.110.118",
 					"http://31.97.110.118:80",
+					"http://31.97.110.118:3000",
+					"http://31.97.110.118:3000/ecommerce",
 					"http://localhost:80", 
 		            "https://ecommerce.codebysushant.com",
 		            "http://ecommerce.codebysushant.com",
