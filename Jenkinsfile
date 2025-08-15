@@ -67,10 +67,10 @@ pipeline {
         sh '''
             docker build -t ecommerce-backend:latest ./E-Commerce
             docker build -t ecommerce-frontend:latest --build-arg REACT_APP_API_URL="$REACT_APP_API_URL" ./ecommerce
-            docker network create ecommerce-network || true
+            docker network create elk-stack_default || true
             docker stop ecommerce-backend ecommerce-frontend || true
             docker rm ecommerce-backend ecommerce-frontend || true
-            docker run -d --name ecommerce-backend --network ecommerce-network -p 8081:8081 \
+            docker run -d --name ecommerce-backend --network elk-stack_default -p 8081:8081 \
                 -e DB_URL="$DB_URL" \
                 -e DB_USERNAME="$DB_USERNAME" \
                 -e DB_PASSWORD="$DB_PASSWORD" \
@@ -78,7 +78,7 @@ pipeline {
                 -e AWS_S3_ACCESS_KEY="$AWS_S3_ACCESS_KEY" \
                 -e AWS_S3_SECRET_ACCESS_KEY="$AWS_S3_SECRET_ACCESS_KEY" \
                 ecommerce-backend:latest
-            docker run -d --name ecommerce-frontend --network ecommerce-network -p 3000:3000 \
+            docker run -d --name ecommerce-frontend --network elk-stack_default -p 3000:3000 \
                 ecommerce-frontend:latest
             sleep 10
             # Check backend deployment
