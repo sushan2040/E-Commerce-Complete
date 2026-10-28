@@ -1,6 +1,8 @@
 package com.example.ecommerce;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -109,19 +111,10 @@ public static final org.slf4j.Logger logger = LoggerFactory.getLogger(EcommerceA
 		@Bean
 		public CorsConfiguration buildCorsConfig() {
 		    CorsConfiguration corsConfiguration = new CorsConfiguration();
-
+		    String corsDomains=environment.getProperty("cors.domains");
 		    // Use setAllowedOrigins instead of setAllowedOriginPatterns if not using wildcards
-		    List<String> allowedOrigins = List.of(
-		            "http://localhost:3000",
-					"http://31.97.110.118",
-					"http://31.97.110.118:80",
-					"http://31.97.110.118:3000",
-					"http://31.97.110.118:3000/ecommerce",
-					"http://localhost:80", 
-		            "https://ecommerce.codebysushant.com",
-		            "http://ecommerce.codebysushant.com",
-		            "http://ecommerce-nlb-frontend-803c4743c5de5a4b.elb.eu-north-1.amazonaws.com"
-		    );
+		    List<String> allowedOrigins =
+		            corsDomains!=null?Arrays.asList(corsDomains.split(",")):Collections.emptyList();
 		    corsConfiguration.setAllowedOrigins(allowedOrigins);
 
 		    // Allow all headers
@@ -217,6 +210,7 @@ public static final org.slf4j.Logger logger = LoggerFactory.getLogger(EcommerceA
 		Properties properties = new Properties();
 		properties.put("hibernate.dialect", environment.getRequiredProperty("hibernate.dialect"));
 		properties.put("hibernate.show_sql", environment.getRequiredProperty("hibernate.show_sql"));
+		properties.put("hibernate.hbm2ddl.auto", "update");
 		properties.put("hibernate.proc.param_null_passing",
 				environment.getRequiredProperty("hibernate.proc.param_null_passing"));
 		properties.put("hibernate.format_sql", environment.getProperty("hibernate.format_sql"));
